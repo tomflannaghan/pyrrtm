@@ -324,6 +324,29 @@ C     Most of these possibilities are not available as clouds always off.
       RETURN
       END
 
+C     *********************** Model output ****************************
+
+      SUBROUTINE GETOUTPUT (TOTUFLUXOUT, TOTDFLUXOUT, FNETOUT, HTROUT)
+
+      PARAMETER (MXLAY=603, MXMOL=39)
+      COMMON /PROFILE/   NLAYERS,PAVEL(MXLAY),TAVEL(MXLAY),
+     &                   PZ(0:MXLAY),TZ(0:MXLAY)
+      COMMON /OUTPUT/    TOTUFLUX(0:MXLAY), TOTDFLUX(0:MXLAY),
+     &                   FNET(0:MXLAY), HTR(0:MXLAY)
+
+      REAL TOTUFLUXOUT(0:NLAYERS),TOTDFLUXOUT(0:NLAYERS)
+      REAL FNETOUT(0:NLAYERS), HTROUT(0:NLAYERS)
+
+      DO 1000 I = 0, NLAYERS
+         FNETOUT(I) = FNET(I)
+         HTROUT(I) = HTR(I)
+         TOTUFLUXOUT(I) = TOTUFLUX(I)
+         TOTDFLUXOUT(I) = TOTDFLUX(I)
+ 1000 CONTINUE
+
+      RETURN
+      END
+
 C     ******************* The old-style ascii read ********************
 
        SUBROUTINE RUNASCII

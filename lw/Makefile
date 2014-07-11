@@ -1,61 +1,42 @@
 # platform flags:
 FC = gfortran
-FCFLAG = -fdefault-integer-8 -fdefault-real-8 -fdefault-double-8 -frecord-marker=4 -fPIC -fno-automatic
-CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing -I/usr/include/python2.7 -I/home/splash/tflannag/extern/epd-7.3-2-rh5-x86_64/include/python2.7
+FCFLAG = -fdefault-integer-8 -fdefault-real-8 -fdefault-double-8 -frecord-marker=4 -fno-automatic
+CFLAGS = 
+LFLAGS = -lnetcdf -lm -lgfortran
 
 UTIL_FILE = util_gfortran.f
+COMMON_SRCS = rtreg.f rtr.f rrtatm.f setcoef.f taumol.f rtregcld.f \
+	rtrcld.f extra.f rtrcldmr.f rtregcldmr.f k_g.f cldprop.f \
+	rtrdis.f RDI1MACH.f  ErrPack.f LINPAK.f disort.f $(UTIL_FILE)
 
-# Files contained in src directory.  If additional .f files are added, add to this list.  
-COMMON_SRCS = rtreg.f rtr.f rrtatm.f setcoef.f taumol.f rtregcld.f rtrcld.f extra.f rtrcldmr.f \
-rtregcldmr.f k_g.f cldprop.f \
-rtrdis.f RDI1MACH.f  ErrPack.f LINPAK.f disort.f $(UTIL_FILE)
-
-SRCS = rrtm.f $(COMMON_SRCS)
-LIB_SRCS = librrtm.f $(COMMON_SRCS)
+FSRCS = librrtm.f $(COMMON_SRCS)
+CSRCS = rrtm_netcdf.c
+HEADERS = librrtm.h
 
 # directories used.
-CPATH = src
 BPATH = build
-OUTPUT = $(BPATH)/rrtm_lw
-LIBPY_OUTPUT = $(BPATH)/rrtmflw.so
-
-LIBPYX = $(BPATH)/rrtmflw_pyx
-LIBPYX_OUTPUT = $(LIBPYX).so
+OUTPUT = $(BPATH)/rrtm_lw_nc
 
 # Object file names
-OBPATH = ${SRCS:%.f=$(BPATH)/%.o}
-LIB_OBPATH = ${LIB_SRCS:%.f=$(BPATH)/%.o}
+OBPATH = ${FSRCS:%.f=$(BPATH)/%.o} ${CSRCS:%.c=$(BPATH)/%.o}
 
 ######################
 
-.PHONY : all lib clean
+.PHONY : all clean
 
-all : $(OUTPUT)
-
-lib : $(LIBPY_OUTPUT) $(LIBPYX_OUTPUT)
+all : | $(BPATH) $(OUTPUT)
 
 clean :
 	rm -f $(BPATH)/*
 
-# Rule for compiling .o files
-$(BPATH)/%.o : $(CPATH)/%.f
+$(OUTPUT) : $(OBPATH)
+	  gcc $(LFLAGS) -o $(OUTPUT) $^
+
+$(BPATH) :
+	mkdir -p $(BPATH)
+
+$(BPATH)/%.o : %.f
 	$(FC) -c $(FCFLAG)  $< -o $@
 
-$(OUTPUT) : $(OBPATH)
-	  $(FC) $(FCFLAG) -o $(OUTPUT) $^
-
-$(LIBPY_OUTPUT) : $(LIB_OBPATH) $(BPATH)/librrtm.pyf
-	f2py --fcompiler=gfortran --f77flags="$(FCFLAG)" -c $^
-	mv rrtmflw.so $(LIBPY_OUTPUT)
-
-$(BPATH)/librrtm.pyf: $(CPATH)/librrtm.f
-	f2py $(CPATH)/librrtm.f -m rrtmflw -h $(BPATH)/librrtm.pyf
-
-$(LIBPYX_OUTPUT): $(LIB_OBPATH) $(BPATH)/librrtm.o $(LIBPYX).o
-	gcc -shared $(CFLAGS) -lgfortran $^ -o $@	
-
-$(BPATH)/%.o : $(CPATH)/%.c
+$(BPATH)/%.o : %.c $(HEADERS)
 	gcc -c $(CFLAGS) $< -o $@
-
-$(CPATH)/%.c : $(CPATH)/%.pyx
-	cython $< -o $@
