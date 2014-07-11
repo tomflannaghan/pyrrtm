@@ -1,0 +1,73 @@
+#+title: Documentation for RRTM Long Wave.
+#+startup: indent
+
+* Model Inputs
+
+** Flags
+
+There are many flags that affect the behaviour of RRTM. My code only supports changing some of them. All other flags defined in the RRTM documentation are set to zero.
+
+- iscat :: Can be set to 0, 1 or 2.
+  - 0 :: Use the RRTM radiative transfer solver with no scattering.
+  - 1 :: Use DISORT radiative transfer solver with no scattering (slow).
+  - 2 :: Use DISORT radiative transfer solver with scattering (slow).
+
+- numangs :: 0, 1, 2, 3 or 4. The behaviour of this flag is affected by iscat. In all cases, the higher the number, the slower the calculation but the more accurate it is. If iscat is 1 or 2, numangs must be 0, 1 or 2.
+
+- ireflect :: 0 or 1.
+  - 0 :: Lambertian reflection at surface (radiance equal at all angles).
+  - 1 :: Specular reflection at surface.
+
+** Data
+
+All input data is given below, with the size of the array given. The arrays are given in C order, so fastest axis last. The vertical structure is given in layers and levels. The number of levels is one more than the number of layers. The lowest level is always given first in the array, and also defines the surface pressure.
+
+- semis(16) :: Surface emissivity in each band, and takes values from 0 to 1. There are 16 bands. Albedo is 1 - semis.
+
+- tbound :: Temperature at surface (K).
+
+- tavel(nlayers) :: Layer average temperature (K).
+
+- tz(nlevels) :: Level temperature (K).
+
+- pavel(nlayers) :: Layer average pressure (hPa).
+
+- pz(nlevels) :: Level pressure (hPa).
+
+- wkl(nlayers,nmol) :: Defines the concentration in each layer of the chemical species in the column. Up to 7 species are given, and are ordered as H2O, CO2, O3, N2O, CO, CH4, O2. (molecules/cm**2 or volume mixing ratio; all species must have the same units).
+
+- wbrodl(nlayers) :: The broadening gases not in wkl. This can be derived from the temperature and pressure structure. (molecules/cm**2).
+
+The strange unit molecules/cm**2 is defined for a layer, and is equal to the molecular density (molecules/cm**3) multiplied by the layer depth in cm.
+
+* Command line interface
+
+Usage: rrtm_lw_nc [-v[v]] -i <input file> -o <output file>
+
+The input file must be defined as given below. The program will always overwrite any preexisting output file. The -v and -vv flags control the verbosity of the output.
+
+** Input file
+
+This must be a netcdf file with exactly the following structure.
+
+netcdf {
+dimensions:
+	layer = nlayers ;
+	level = nlayers + 1 ;
+	band = 16 ;
+	mol = nmol ;
+variables:
+	double wkl(layer, mol) ;
+	double wbrodl(layer) ;
+	double tz(level) ;
+	double tavel(layer) ;
+	double semis(band) ;
+	double pz(level) ;
+	double pavel(layer) ;
+
+// global attributes:
+		:ireflect  ;
+		:iscat ;
+		:tbound ;
+		:numangs ;
+}
