@@ -1,8 +1,6 @@
 import scipy.io.netcdf
 import pickle
 
-inputs = pickle.load(open("inputs.dat", 'r'))
-
 def make_input_file(filename, iscat, numangs,
                     tbound, ireflect, semis,
                     tavel, pavel, tz, pz, wkl, wbrodl):
@@ -35,3 +33,13 @@ def make_input_file(filename, iscat, numangs,
     nc.createVariable('semis', 'd', ('band',))[:] = semis
 
     nc.close()
+
+
+inputs = pickle.load(open("inputs.dat", 'r'))
+inputs['iscat'] = 0
+inputs['numangs'] = 2
+make_input_file('input_mls.nc', **inputs)
+inputs['iscat'] = 1
+make_input_file('input_mls_disort.nc', **inputs)
+inputs['iscat'] = 2
+make_input_file('input_mls_disort2.nc', **inputs)

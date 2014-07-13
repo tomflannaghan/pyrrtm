@@ -1,3 +1,6 @@
 /tests/input.nc
 /tests/tmp.nc
 /lw/build/
+/tests/input_mls.nc
+/tests/input_mls_disort.nc
+/tests/input_mls_disort2.nc

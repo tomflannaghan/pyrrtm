@@ -10,7 +10,7 @@ There are many flags that affect the behaviour of RRTM. My code only supports ch
 - iscat :: Can be set to 0, 1 or 2.
   - 0 :: Use the RRTM radiative transfer solver with no scattering.
   - 1 :: Use DISORT radiative transfer solver with no scattering (slow).
-  - 2 :: Use DISORT radiative transfer solver with scattering (slow).
+  - 2 :: Use DISORT radiative transfer solver with scattering (slow). This is equivalent to mode 1 as there are no scattering aerosols here.
 
 - numangs :: 0, 1, 2, 3 or 4. The behaviour of this flag is affected by iscat. In all cases, the higher the number, the slower the calculation but the more accurate it is. If iscat is 1 or 2, numangs must be 0, 1 or 2.
 
@@ -48,7 +48,7 @@ The input file must be defined as given below. The program will always overwrite
 
 ** Input file
 
-This must be a netcdf file with exactly the following structure.
+This must be a netcdf file with the following structure. Extra variables etc are permitted.
 
 netcdf {
 dimensions:

@@ -166,7 +166,7 @@ int read_netcdf_file(const char *ifile) {
   }
   
   // sanity checks on the attributes.
-  if ((iscat < 0) || (iscat > 1)) error_and_exit("iscat must be 0 or 1.");
+  if ((iscat < 0) || (iscat > 2)) error_and_exit("iscat must be 0, 1 or 2.");
   if ((ireflect < 0) || (ireflect > 1)) 
     error_and_exit("ireflect must be 0 or 1.");
   if ((numangs < 0) || (numangs > 3)) 
