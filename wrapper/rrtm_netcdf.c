@@ -1,4 +1,4 @@
-#include "librrtm.h"
+#include "../lw/librrtm.h"
 #include <netcdf.h>
 #include <stdlib.h>
 #include <stdio.h>
