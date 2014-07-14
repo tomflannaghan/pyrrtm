@@ -1,9 +1,9 @@
-#+title: Documentation for RRTM Long Wave.
+#+title: Documentation for RRTM.
 #+startup: indent
 
-* Model Inputs
-
-** Flags
+* Long wave model
+** Model Inputs
+*** Flags
 
 There are many flags that affect the behaviour of RRTM. My code only supports changing some of them. All other flags defined in the RRTM documentation are set to zero.
 
@@ -18,11 +18,11 @@ There are many flags that affect the behaviour of RRTM. My code only supports ch
   - 0 :: Lambertian reflection at surface (radiance equal at all angles).
   - 1 :: Specular reflection at surface.
 
-** Data
+*** Data
 
 All input data is given below, with the size of the array given. The arrays are given in C order, so fastest axis last. The vertical structure is given in layers and levels. The number of levels is one more than the number of layers. The lowest level is always given first in the array, and also defines the surface pressure.
 
-- semis(16) :: Surface emissivity in each band, and takes values from 0 to 1. There are 16 bands. Albedo is 1 - semis.
+- semis :: Surface emissivity in each long wave band, and takes values from 0 to 1. There are 16 bands.
 
 - tbound :: Temperature at surface (K).
 
@@ -40,13 +40,13 @@ All input data is given below, with the size of the array given. The arrays are 
 
 The strange unit molecules/cm**2 is defined for a layer, and is equal to the molecular density (molecules/cm**3) multiplied by the layer depth in cm.
 
-* Command line interface
+** Command line interface
 
-Usage: rrtm_lw_nc [-v[v]] -i <input file> -o <output file>
+Usage: rrtm_nc [-v[v]] -i <input file> -o <output file>
 
 The input file must be defined as given below. The program will always overwrite any preexisting output file. The -v and -vv flags control the verbosity of the output.
 
-** Input file
+*** Input file
 
 This must be a netcdf file with the following structure. Extra variables etc are permitted.
 
@@ -54,20 +54,89 @@ netcdf {
 dimensions:
 	layer = nlayers ;
 	level = nlayers + 1 ;
-	band = 16 ;
 	mol = nmol ;
 variables:
 	double wkl(layer, mol) ;
 	double wbrodl(layer) ;
 	double tz(level) ;
 	double tavel(layer) ;
-	double semis(band) ;
 	double pz(level) ;
 	double pavel(layer) ;
 
 // global attributes:
-		:ireflect  ;
-		:iscat ;
-		:tbound ;
-		:numangs ;
+		:lw_ireflect  ;
+		:lw_iscat ;
+		:lw_tbound ;
+		:lw_numangs ;
+      :lw_semis ;
+}
+
+* Short wave model
+** Model Inputs
+*** Flags
+
+All flags not given here are set to zero automatically.
+
+- nstr :: Can be set to 0, 1 or 2. Affects the number of streams used in the DISORT calculation. The higher nstr, the higher the number of streams.
+
+- ireflect :: 0 or 1.
+  - 0 :: Lambertian reflection at surface (radiance equal at all angles).
+  - 1 :: Specular reflection at surface.
+
+*** Data
+
+All input data is given below, with the size of the array given. The arrays are given in C order, so fastest axis last. The vertical structure is given in layers and levels. The number of levels is one more than the number of layers. The lowest level is always given first in the array, and also defines the surface pressure.
+
+- semis :: Surface emissivity in the short wave. Takes values from 0 to 1. Albedo = 1 - semis.
+
+- solvar :: Solar variability -- a scaling factor applied to the solar constant.
+
+- juldat :: Julian day (1 -- 365) used to compute a correction using the earth-sun distance. 0 = no earth-sun distance correction.
+
+- sza :: Solar zenith angle (degrees, 0 = overhead).
+
+- tavel(nlayers) :: Layer average temperature (K).
+
+- tz(nlevels) :: Level temperature (K).
+
+- pavel(nlayers) :: Layer average pressure (hPa).
+
+- pz(nlevels) :: Level pressure (hPa).
+
+- wkl(nlayers,nmol) :: Defines the concentration in each layer of the chemical species in the column. Up to 7 species are given, and are ordered as H2O, CO2, O3, N2O, CO, CH4, O2. (molecules/cm**2 or volume mixing ratio; all species must have the same units).
+
+- wbrodl(nlayers) :: The broadening gases not in wkl. This can be derived from the temperature and pressure structure. (molecules/cm**2).
+
+The strange unit molecules/cm**2 is defined for a layer, and is equal to the molecular density (molecules/cm**3) multiplied by the layer depth in cm.
+
+** Command line interface
+
+Usage: rrtm_sw_nc [-v[v]] -i <input file> -o <output file>
+
+The input file must be defined as given below. The program will always overwrite any preexisting output file. The -v and -vv flags control the verbosity of the output.
+
+*** Input file
+
+This must be a netcdf file with the following structure. Extra variables etc are permitted. Note that this allows a combined input file to be used for both the longwave and shortwave code.
+
+netcdf {
+dimensions:
+	layer = nlayers ;
+	level = nlayers + 1 ;
+	mol = nmol ;
+variables:
+	double wkl(layer, mol) ;
+	double wbrodl(layer) ;
+	double tz(level) ;
+	double tavel(layer) ;
+	double pz(level) ;
+	double pavel(layer) ;
+
+// global attributes:
+		:sw_ireflect  ;
+		:sw_nstr ;
+      :sw_semis ;
+      :sw_solvar ;
+      :sw_juldat ;
+      :sw_sza ;
 }
