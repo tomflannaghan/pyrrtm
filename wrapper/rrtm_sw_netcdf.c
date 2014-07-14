@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "lw_wrapper.h"
+#include "sw_wrapper.h"
 
 
 void usage_and_exit() {
   const char *usage =
-    "Usage: rrtm_lw [-v[v]] -i <input file> -o <output file> \n"
+    "Usage: rrtm_sw [-v[v]] -i <input file> -o <output file> \n"
     "\n";
   printf("%s", usage);
   exit(-1);  
@@ -45,15 +45,17 @@ int main(int argc, char *argv[]) {
   if (ofile == NULL) usage_and_exit();
   
   if (verbose) printf("Reading input file `%s`.\n", ifile);
-  lw_read_netcdf(ifile);
+  sw_read_netcdf(ifile);
   if (verbose) printf("Data loaded.\n");
-  lw_run();
+  sw_run();
   if (verbose) printf("The model ran.\n");
 
+  //////// rest not implemented.
+  /*
   if (vverbose) {
     lw_print_results();
   }
   
   if (verbose) printf("Writing output file `%s`.\n", ofile);
-  lw_write_netcdf(ofile);
+  lw_write_netcdf(ofile);*/
 }

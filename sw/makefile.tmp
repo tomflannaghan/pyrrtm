@@ -1,0 +1,51 @@
+
+# platform flags:
+FC = gfortran
+FCFLAG = -fdefault-integer-8 -fdefault-real-8 -fdefault-double-8 -frecord-marker=4 -fPIC -fno-automatic
+
+UTIL_FILE = util_gfortran.f
+
+# Files contained in src directory.  If additional .f files are added, add to this list.  
+COMMON_SRCS = cldprop.f LINPAK.f setcoef.f disort.f taumoldis.f   \
+			  ErrPack.f RDI1MACH.f  extra.f rrtatm.f k_g.f \
+			  rtrdis.f $(UTIL_FILE)
+
+SRCS = rrtm.f $(COMMON_SRCS)
+LIB_SRCS = librrtm.f $(COMMON_SRCS)
+
+
+# directories used.
+CPATH = src
+BPATH = build
+OUTPUT = $(BPATH)/rrtm_sw
+LIBPY_OUTPUT = $(BPATH)/rrtmfsw.so
+
+# Object file names
+OBPATH = ${SRCS:%.f=$(BPATH)/%.o}
+LIB_OBPATH = ${LIB_SRCS:%.f=$(BPATH)/%.o}
+
+######################
+
+.PHONY : all lib clean
+
+all : $(OUTPUT)
+
+lib : $(LIBPY_OUTPUT)
+
+clean :
+	rm -f $(BPATH)/*
+
+# Rule for compiling .o files
+$(BPATH)/%.o : $(CPATH)/%.f
+	$(FC) -c $(FCFLAG)  $< -o $@
+
+$(OUTPUT) : $(OBPATH)
+	  $(FC) $(FCFLAG) -o $(OUTPUT) $^
+
+$(LIBPY_OUTPUT) : $(LIB_OBPATH) $(BPATH)/librrtm.pyf
+	f2py --fcompiler=gfortran --f77flags="$(FCFLAG)" -c $^
+	mv rrtmfsw.so $(LIBPY_OUTPUT)
+
+$(BPATH)/librrtm.pyf: $(CPATH)/librrtm.f
+	f2py $(CPATH)/librrtm.f -m rrtmfsw -h $(BPATH)/librrtm.pyf
+
