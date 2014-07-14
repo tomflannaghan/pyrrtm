@@ -18,11 +18,11 @@ def make_input_file(filename, iscat, numangs,
     nc.numangs = numangs
     nc.tbound = tbound
     nc.ireflect = ireflect
+    nc.semis = semis
     
     # now fill up the variables.
     nc.createDimension("layer", nlayers)
     nc.createDimension("level", nlayers + 1)
-    nc.createDimension("band", 16)
     nc.createDimension("mol", nmol)
     nc.createVariable('pavel', 'd', ('layer',))[:] = pavel
     nc.createVariable('tavel', 'd', ('layer',))[:] = tavel
@@ -30,12 +30,12 @@ def make_input_file(filename, iscat, numangs,
     nc.createVariable('tz', 'd', ('level',))[:] = tz
     nc.createVariable('wbrodl', 'd', ('layer',))[:] = wbrodl
     nc.createVariable('wkl', 'd', ('layer', 'mol'))[:] = wkl.T
-    nc.createVariable('semis', 'd', ('band',))[:] = semis
 
     nc.close()
 
 
 inputs = pickle.load(open("inputs.dat", 'r'))
+inputs['semis'] = 1
 inputs['iscat'] = 0
 inputs['numangs'] = 2
 make_input_file('input_mls.nc', **inputs)

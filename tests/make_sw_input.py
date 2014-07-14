@@ -20,11 +20,11 @@ def make_input_file(filename,
     nc.sw_juldat = juldat
     nc.sw_sza = sza
     nc.sw_solvar = solvar
+    nc.sw_semis = semis
     
     # now fill up the variables.
     nc.createDimension("layer", nlayers)
     nc.createDimension("level", nlayers + 1)
-    nc.createDimension("band", 16)
     nc.createDimension("mol", nmol)
     nc.createVariable('pavel', 'd', ('layer',))[:] = pavel
     nc.createVariable('tavel', 'd', ('layer',))[:] = tavel
@@ -32,7 +32,6 @@ def make_input_file(filename,
     nc.createVariable('tz', 'd', ('level',))[:] = tz
     nc.createVariable('wbrodl', 'd', ('layer',))[:] = wbrodl
     nc.createVariable('wkl', 'd', ('layer', 'mol'))[:] = wkl.T
-    nc.createVariable('sw_semis', 'd', ('band',))[:] = semis
 
     nc.close()
 
@@ -43,4 +42,5 @@ inputs['nstr'] = 2
 inputs['juldat'] = 0
 inputs['sza'] = 0
 inputs['solvar'] = 1
+inputs['semis'] = 1
 make_input_file('input_mls_sw.nc', **inputs)
