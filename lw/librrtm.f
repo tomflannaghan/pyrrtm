@@ -60,6 +60,7 @@ C     Forced settings - we do not currently support modifying these.
       IATM = 0
       IXSECT = 0
       ICLD = 0
+      IOUT = 0
 
       NUMANGS = NUMANGSINP
       ISCAT = ISCATINP

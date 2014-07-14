@@ -87,13 +87,17 @@ C  Initialize molecular amount and cross section arrays to zero here.
 
       IXMAX = MAXINPX
 
-c     Initialization of the control variables.
+c     Initialization of the control variables. We don't currently
+c     support modifying these (although changing IOUT would be simple to
+c     do).
       IAER = 0
       IATM = 0
       ISCAT = 0
-      ISTRM = ISTRMINP
       IOUT = 0
       ICLD = 0
+
+c     Control variables we do use.
+      ISTRM = ISTRMINP
       IDELM = IDELMINP
       ICOS = ICOSINP
 
@@ -318,6 +322,37 @@ c     Process the layer arrays.
       
       RETURN
       END
+
+
+C     *********************** Model output ****************************
+
+      SUBROUTINE GETOUTPUT (TOTUFLUXOUT, TOTDFLUXOUT, FNETOUT, HTROUT)
+
+      INCLUDE 	'param.f'
+      COMMON /OUTPUT/    TOTUFLUX(0:MXLAY,0:nbands), 
+     &                   TOTDFLUX(0:MXLAY,0:nbands),
+     &                   DIFDOWNFLUX(0:MXLAY,0:nbands), 
+     &                   DIRDOWNFLUX(0:MXLAY,0:nbands),
+     &                   FNET(0:MXLAY,0:nbands), 
+     &                   HTR(0:MXLAY,0:nbands) 
+
+      COMMON /PROFILE/  NLAYERS,PAVEL(MXLAY),TAVEL(MXLAY),
+     &                  PZ(0:MXLAY),TZ(0:MXLAY),TBOUND
+      
+
+      REAL TOTUFLUXOUT(0:NLAYERS),TOTDFLUXOUT(0:NLAYERS)
+      REAL FNETOUT(0:NLAYERS), HTROUT(0:NLAYERS)
+
+      DO 1000 I = 0, NLAYERS
+         FNETOUT(I) = FNET(I,0)
+         HTROUT(I) = HTR(I,0)
+         TOTUFLUXOUT(I) = TOTUFLUX(I,0)
+         TOTDFLUXOUT(I) = TOTDFLUX(I,0)
+ 1000 CONTINUE
+
+      RETURN
+      END
+
 
 
 *****************************************************************
