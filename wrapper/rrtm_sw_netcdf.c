@@ -50,12 +50,10 @@ int main(int argc, char *argv[]) {
   sw_run();
   if (verbose) printf("The model ran.\n");
 
-  //////// rest not implemented.
-  /*
   if (vverbose) {
-    lw_print_results();
+    sw_print_results();
   }
   
   if (verbose) printf("Writing output file `%s`.\n", ofile);
-  lw_write_netcdf(ofile);*/
+  sw_write_netcdf(ofile);
 }

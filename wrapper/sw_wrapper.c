@@ -103,10 +103,70 @@ return 0;
 }
 
 
+int sw_write_netcdf(const char *ofile) {
+  int ret;
+  int ncid;
+  int level_dim;
+  int layer_dim;
+  int vid_totuflux, vid_totdflux, vid_htr, vid_fnet, vid_pz, vid_pavel;
+
+  // open the netcdf file for writing.
+  if ( (ret = nc_create(ofile, NC_CLOBBER, &ncid)) != 0 ) 
+    handle_error(ret);
+
+  // create the dimensions and variables, and exit define mode.
+  if ( ((ret = nc_def_dim(ncid, "layer", nlayers, &layer_dim)) != 0) ||
+       ((ret = nc_def_dim(ncid, "level", nlayers + 1, &level_dim)) != 0) ||
+       ((ret = nc_def_var(ncid, "totuflux", NC_DOUBLE, 
+                          1, &level_dim, &vid_totuflux)) != 0) ||
+       ((ret = nc_def_var(ncid, "totdflux", NC_DOUBLE, 
+                          1, &level_dim, &vid_totdflux)) != 0) ||
+       ((ret = nc_def_var(ncid, "fnet", NC_DOUBLE, 
+                          1, &level_dim, &vid_fnet)) != 0) ||
+       ((ret = nc_def_var(ncid, "htr", NC_DOUBLE, 
+                          1, &layer_dim, &vid_htr)) != 0) ||
+       ((ret = nc_def_var(ncid, "pz", NC_DOUBLE, 
+                          1, &level_dim, &vid_pz)) != 0) ||
+       ((ret = nc_def_var(ncid, "pavel", NC_DOUBLE, 
+                          1, &layer_dim, &vid_pavel)) != 0) ||
+       ((ret = nc_enddef(ncid)) != 0) ) {
+    nc_close(ncid);
+    handle_error(ret);
+  }
+
+  // now fill up the variables.
+  if ( ((ret = nc_put_var_double(ncid, vid_totuflux, totuflux)) != 0) ||
+       ((ret = nc_put_var_double(ncid, vid_totdflux, totdflux)) != 0) ||
+       ((ret = nc_put_var_double(ncid, vid_fnet, fnet)) != 0) ||
+       ((ret = nc_put_var_double(ncid, vid_htr, htr)) != 0) ||
+       ((ret = nc_put_var_double(ncid, vid_pz, pz)) != 0) ||
+       ((ret = nc_put_var_double(ncid, vid_pavel, pavel)) != 0) ) {
+    nc_close(ncid);
+    handle_error(ret);
+  }
+  
+  nc_close(ncid);
+  return 0;
+}
+
+
 void sw_run(void) {
   long two = 2, one = 1, zero = 0;
   initrrtm_(&nstr, &zero, &zero, &juldat, &sza, &one, &solvar);
   initsurface_(&one, &ireflect, &semis);
   initprofile_(&nlayers, tavel, pavel, tz, pz, &nmol, wkl, wbrodl);
   execrun_();
+  getoutput_(totuflux, totdflux, fnet, htr);
+}
+
+
+void sw_print_results(void) {
+  int i;
+  printf("\nResults:\n");
+  printf("%10s %10s %10s %10s %10s\n", 
+         "PZ", "TOTUFLUX", "TOTDFLUX", "FNET", "HTR");
+  for (i=0; i<=nlayers; i++) {
+    printf("%10.2f %10.2f %10.2f %10.2f %10.2f\n", 
+           pz[i], totuflux[i], totdflux[i], fnet[i], htr[i]);
+  }
 }
