@@ -14,11 +14,11 @@ def make_input_file(filename, iscat, numangs,
     nc = scipy.io.netcdf.netcdf_file(filename, 'w')
 
     # attributes required
-    nc.iscat = iscat
-    nc.numangs = numangs
-    nc.tbound = tbound
-    nc.ireflect = ireflect
-    nc.semis = semis
+    nc.lw_iscat = iscat
+    nc.lw_numangs = numangs
+    nc.lw_tbound = tbound
+    nc.lw_ireflect = ireflect
+    nc.lw_semis = semis
     
     # now fill up the variables.
     nc.createDimension("layer", nlayers)

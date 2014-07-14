@@ -74,23 +74,23 @@ int lw_read_netcdf(const char *ifile) {
   }
   
   // we also need to read some attributes.
-  if ( ((ret = nc_get_att_long(ncid, NC_GLOBAL, "iscat", &iscat)) != 0) ||
-       ((ret = nc_get_att_long(ncid, NC_GLOBAL, "numangs", &numangs)) != 0) ||
-       ((ret = nc_get_att_long(ncid, NC_GLOBAL, "ireflect", &ireflect)) != 0) ||
-       ((ret = nc_get_att_double(ncid, NC_GLOBAL, "tbound", &tbound)) != 0) ||
-       ((ret = nc_get_att_double(ncid, NC_GLOBAL, "semis", &semis)) != 0) ) {
+  if ( ((ret = nc_get_att_long(ncid, NC_GLOBAL, "lw_iscat", &iscat)) != 0) ||
+       ((ret = nc_get_att_long(ncid, NC_GLOBAL, "lw_numangs", &numangs)) != 0) ||
+       ((ret = nc_get_att_long(ncid, NC_GLOBAL, "lw_ireflect", &ireflect)) != 0) ||
+       ((ret = nc_get_att_double(ncid, NC_GLOBAL, "lw_tbound", &tbound)) != 0) ||
+       ((ret = nc_get_att_double(ncid, NC_GLOBAL, "lw_semis", &semis)) != 0) ) {
     nc_close(ncid);
     handle_error(ret);    
   }
   
   // sanity checks on the attributes.
-  if ((iscat < 0) || (iscat > 2)) error_and_exit("iscat must be 0, 1 or 2.");
+  if ((iscat < 0) || (iscat > 2)) error_and_exit("lw_iscat must be 0, 1 or 2.");
   if ((ireflect < 0) || (ireflect > 1)) 
-    error_and_exit("ireflect must be 0 or 1.");
+    error_and_exit("lw_ireflect must be 0 or 1.");
   if ((numangs < 0) || (numangs > 3)) 
-    error_and_exit("numangs must be between 0 and 3.");
+    error_and_exit("lw_numangs must be between 0 and 3.");
   if ((semis < 0) || (semis > 1)) 
-    error_and_exit("semis must be between 0 and 1.");
+    error_and_exit("lw_semis must be between 0 and 1.");
 
   // close the netcdf file.
   nc_close(ncid);
