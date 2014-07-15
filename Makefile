@@ -47,14 +47,23 @@ LFLAGS = -lnetcdf -lm -lgfortran
 O_SW_WRAPPER = ${SW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
 O_LW_WRAPPER = ${LW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
 
+#### Python module
+
+PYMOD_BPATH = $(BPATH)/pymodule
+
 ######################
 
-.PHONY : all clean
+.PHONY : all clean pymodule
 
 all : | $(LW_BPATH) $(SW_BPATH) $(LW_OUTPUT) $(SW_OUTPUT)
 
 clean :
 	rm -rf $(LW_BPATH) $(WRAPPER_BPATH)
+
+pymodule : all python/interface.py
+	mkdir -p $(PYMOD_BPATH)
+	cp python/interface.py $(PYMOD_BPATH)/__init__.py
+	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_BPATH)/.
 
 $(LW_OUTPUT) : $(O_LW) $(O_LW_WRAPPER)
 	  gcc $(LFLAGS) -o $(LW_OUTPUT) $^
