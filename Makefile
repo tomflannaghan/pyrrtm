@@ -51,6 +51,17 @@ O_LW_WRAPPER = ${LW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
 
 PYMOD_BPATH = $(BPATH)/pymodule
 
+#### Python .so libraries
+
+LW_SO_BASE = rrtm_lw.so
+SW_SO_BASE = rrtm_sw.so
+LW_SO = $(BPATH)/$(LW_SO_BASE)
+SW_SO = $(BPATH)/$(SW_SO_BASE)
+SO_FFLAGS = -fPIC
+LW_SO_O = ${LW_FSRCS:%.f=$(LW_BPATH)/%_so.o}
+SW_SO_O = ${SW_FSRCS:%.f=$(SW_BPATH)/%_so.o}
+PYX_CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing -I/usr/include/python2.7
+
 ######################
 
 .PHONY : all clean pymodule
@@ -58,12 +69,14 @@ PYMOD_BPATH = $(BPATH)/pymodule
 all : | $(LW_BPATH) $(SW_BPATH) $(LW_OUTPUT) $(SW_OUTPUT)
 
 clean :
-	rm -rf $(LW_BPATH) $(WRAPPER_BPATH)
+	rm -rf $(BPATH)
 
-pymodule : all python/interface.py
+pymodule : all $(LW_SO) $(SW_SO) python/interface.py
 	mkdir -p $(PYMOD_BPATH)
 	cp python/interface.py $(PYMOD_BPATH)/__init__.py
-	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_BPATH)/.
+	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_BPATH)/.
+
+## Netcdf interface:
 
 $(LW_OUTPUT) : $(O_LW) $(O_LW_WRAPPER)
 	  gcc $(LFLAGS) -o $(LW_OUTPUT) $^
@@ -85,3 +98,28 @@ $(SW_BPATH)/%.o : $(SW_SRC)/%.f
 
 $(WRAPPER_BPATH)/%.o : $(WRAPPER_SRC)/%.c $(HEADERS)
 	gcc -c $(CFLAGS) $< -o $@
+
+## Pure python interface:
+
+$(LW_SO) : $(LW_SO_O) $(LW_BPATH)/librrtm_wrapper.o
+	gcc -shared $(LFLAGS) $(PYX_CFLAGS) $^ -o $@
+
+$(SW_SO) : $(SW_SO_O) $(SW_BPATH)/librrtm_sw_wrapper.o
+	gcc -shared $(LFLAGS) $(PYX_CFLAGS) $^ -o $@
+
+$(LW_BPATH)/librrtm_wrapper.o : $(LW_SRC)/librrtm.h $(LW_SRC)/librrtm_wrapper.pyx
+	cython $(LW_SRC)/librrtm_wrapper.pyx -o $(LW_BPATH)/librrtm_wrapper.c
+	gcc -c -I$(LW_SRC) $(CFLAGS) $(PYX_CFLAGS) \
+	     $(LW_BPATH)/librrtm_wrapper.c -o $@
+
+$(SW_BPATH)/librrtm_sw_wrapper.o : $(SW_SRC)/librrtm_sw.h $(SW_SRC)/librrtm_sw_wrapper.pyx
+	cython $(SW_SRC)/librrtm_sw_wrapper.pyx -o $(SW_BPATH)/librrtm_sw_wrapper.c
+	gcc -c -I$(SW_SRC) $(CFLAGS) $(PYX_CFLAGS) \
+	     $(SW_BPATH)/librrtm_sw_wrapper.c -o $@
+
+$(LW_BPATH)/%_so.o : $(LW_SRC)/%.f
+	$(FC) -c $(FCFLAG) $(SO_FFLAGS)  $< -o $@
+
+$(SW_BPATH)/%_so.o : $(SW_SRC)/%.f
+	$(FC) -c $(FCFLAG) $(SO_FFLAGS)  $< -o $@
+
