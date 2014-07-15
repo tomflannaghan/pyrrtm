@@ -53,10 +53,10 @@ PYMOD_BPATH = $(BPATH)/pymodule
 
 #### Python .so libraries
 
-LW_SO_BASE = rrtm_lw.so
-SW_SO_BASE = rrtm_sw.so
-LW_SO = $(BPATH)/$(LW_SO_BASE)
-SW_SO = $(BPATH)/$(SW_SO_BASE)
+LW_SO_BASE = librrtm_wrapper
+SW_SO_BASE = librrtm_sw_wrapper
+LW_SO = $(BPATH)/$(LW_SO_BASE).so
+SW_SO = $(BPATH)/$(SW_SO_BASE).so
 SO_FFLAGS = -fPIC
 LW_SO_O = ${LW_FSRCS:%.f=$(LW_BPATH)/%_so.o}
 SW_SO_O = ${SW_FSRCS:%.f=$(SW_BPATH)/%_so.o}
@@ -107,15 +107,15 @@ $(LW_SO) : $(LW_SO_O) $(LW_BPATH)/librrtm_wrapper.o
 $(SW_SO) : $(SW_SO_O) $(SW_BPATH)/librrtm_sw_wrapper.o
 	gcc -shared $(LFLAGS) $(PYX_CFLAGS) $^ -o $@
 
-$(LW_BPATH)/librrtm_wrapper.o : $(LW_SRC)/librrtm.h $(LW_SRC)/librrtm_wrapper.pyx
-	cython $(LW_SRC)/librrtm_wrapper.pyx -o $(LW_BPATH)/librrtm_wrapper.c
+$(LW_BPATH)/librrtm_wrapper.o : $(LW_SRC)/librrtm.h $(LW_SRC)/$(LW_SO_BASE).pyx
+	cython $(LW_SRC)/$(LW_SO_BASE).pyx -o $(LW_BPATH)/$(LW_SO_BASE).c
 	gcc -c -I$(LW_SRC) $(CFLAGS) $(PYX_CFLAGS) \
-	     $(LW_BPATH)/librrtm_wrapper.c -o $@
+	    $(LW_BPATH)/$(LW_SO_BASE).c -o $@
 
-$(SW_BPATH)/librrtm_sw_wrapper.o : $(SW_SRC)/librrtm_sw.h $(SW_SRC)/librrtm_sw_wrapper.pyx
-	cython $(SW_SRC)/librrtm_sw_wrapper.pyx -o $(SW_BPATH)/librrtm_sw_wrapper.c
+$(SW_BPATH)/librrtm_sw_wrapper.o : $(SW_SRC)/librrtm_sw.h $(SW_SRC)/$(SW_SO_BASE).pyx
+	cython $(SW_SRC)/$(SW_SO_BASE).pyx -o $(SW_BPATH)/$(SW_SO_BASE).c
 	gcc -c -I$(SW_SRC) $(CFLAGS) $(PYX_CFLAGS) \
-	     $(SW_BPATH)/librrtm_sw_wrapper.c -o $@
+	     $(SW_BPATH)/$(SW_SO_BASE).c -o $@
 
 $(LW_BPATH)/%_so.o : $(LW_SRC)/%.f
 	$(FC) -c $(FCFLAG) $(SO_FFLAGS)  $< -o $@
