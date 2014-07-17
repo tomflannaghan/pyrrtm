@@ -1,27 +1,28 @@
+## directories used.
 
-# directories used.
 BPATH = build
 LW_OUTPUT = $(BPATH)/rrtm_nc
 SW_OUTPUT = $(BPATH)/rrtm_sw_nc
 
-# platform flags:
+## platform flags:
 FC = gfortran
-FCFLAG = -fdefault-integer-8 -fdefault-real-8 -fdefault-double-8 -frecord-marker=4 -fno-automatic
+FCFLAG = 	-fdefault-integer-8 -fdefault-real-8 -fdefault-double-8 \
+			-frecord-marker=4 -fno-automatic
 
 UTIL_FILE = util_gfortran.f
 
-#### long wave:
+## long wave:
 
-LW_FSRCS = librrtm.f rtreg.f rtr.f rrtatm.f setcoef.f taumol.f rtregcld.f \
-	rtrcld.f extra.f rtrcldmr.f rtregcldmr.f k_g.f cldprop.f \
-	rtrdis.f RDI1MACH.f  ErrPack.f LINPAK.f disort.f $(UTIL_FILE)
+LW_FSRCS = 	librrtm.f rtreg.f rtr.f rrtatm.f setcoef.f taumol.f rtregcld.f \
+			rtrcld.f extra.f rtrcldmr.f rtregcldmr.f k_g.f cldprop.f \
+			rtrdis.f RDI1MACH.f  ErrPack.f LINPAK.f disort.f $(UTIL_FILE)
 
 LW_BPATH = $(BPATH)/lw
 LW_SRC = lw
 
 O_LW = ${LW_FSRCS:%.f=$(LW_BPATH)/%.o}
 
-#### short wave:
+## short wave:
 
 SW_FSRCS = librrtm_sw.f cldprop.f LINPAK.f setcoef.f disort.f taumoldis.f   \
 		   ErrPack.f RDI1MACH.f  extra.f rrtatm.f k_g.f \
@@ -32,14 +33,14 @@ SW_SRC = sw
 
 O_SW = ${SW_FSRCS:%.f=$(SW_BPATH)/%.o}
 
-#### wrapper
+## wrapper
 
 WRAPPER_SRC = wrapper
 WRAPPER_BPATH = $(BPATH)
 LW_WRAPPER_CSRCS = rrtm_netcdf.c common.c lw_wrapper.c
 SW_WRAPPER_CSRCS = rrtm_sw_netcdf.c common.c sw_wrapper.c
-HEADERS = $(LW_SRC)/librrtm.h $(WRAPPER_SRC)/common.h \
-	$(WRAPPER_SRC)/lw_wrapper.h $(WRAPPER_SRC)/sw_wrapper.h
+HEADERS = 	$(LW_SRC)/librrtm.h $(WRAPPER_SRC)/common.h \
+			$(WRAPPER_SRC)/lw_wrapper.h $(WRAPPER_SRC)/sw_wrapper.h
 
 CFLAGS = 
 LFLAGS = -lnetcdf -lm -lgfortran
@@ -47,11 +48,14 @@ LFLAGS = -lnetcdf -lm -lgfortran
 O_SW_WRAPPER = ${SW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
 O_LW_WRAPPER = ${LW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
 
-#### Python module
+## Python module
 
 PYMOD_BPATH = $(BPATH)/pymodule
+PPYMOD_SRCS = 	netcdf_interface.py native_interface.py __init__.py \
+				chem.py low_level.py
+PYMOD_SRCS = ${PPYMOD_SRCS:%.py=python/%.py}
 
-#### Python .so libraries
+## Python .so libraries
 
 LW_SO_BASE = librrtm_wrapper
 SW_SO_BASE = librrtm_sw_wrapper
@@ -64,17 +68,22 @@ PYX_CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing -I/usr/include/python2.
 
 ######################
 
-.PHONY : all clean pymodule
+.PHONY : all clean pymodule_netcdf pymodule_native
 
 all : | $(LW_BPATH) $(SW_BPATH) $(LW_OUTPUT) $(SW_OUTPUT)
 
 clean :
 	rm -rf $(BPATH)
 
-pymodule : all $(LW_SO) $(SW_SO) python/interface.py
+pymodule_netcdf : all $(PYMOD_SRCS)
+	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
-	cp python/interface.py $(PYMOD_BPATH)/__init__.py
-	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_BPATH)/.
+	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_SRCS) $(PYMOD_BPATH)/.
+
+pymodule_native : all $(LW_SO) $(SW_SO) $(PYMOD_SRCS)
+	rm -rf $(PYMOD_BPATH)
+	mkdir -p $(PYMOD_BPATH)
+	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) $(PYMOD_BPATH)/.
 
 ## Netcdf interface:
 

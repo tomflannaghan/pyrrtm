@@ -6,7 +6,7 @@
 /************************** Error Handling *********************/
 
 void error_and_exit(const char *message) {
-  fprintf(stderr, "Error: %s\n", message);
+  fprintf(stdout, "Error: %s\n", message);
   exit(-1);  
 }
 

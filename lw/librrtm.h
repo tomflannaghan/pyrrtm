@@ -29,4 +29,4 @@ void execrun_();
 void getoutput_(double * totuflux, // upwelling flux [nlayers + 1]
                 double * totdflux, // downwelling flux [nlayers + 1]
                 double * fnet,     // net flux [nlayers + 1]
-                double * htr);     // heating rate [nlayers]
+                double * htr);     // heating rate [nlayers + 1]

@@ -53,9 +53,14 @@ def execrun():
     execrun_()
 
 def getoutput(nlayers):
-    cdef double [:] totuflux = numpy.zeros((nlayers + 1,), dtype='double')
-    cdef double [:] totdflux = numpy.zeros((nlayers + 1,), dtype='double')
-    cdef double [:] fnet = numpy.zeros((nlayers + 1,), dtype='double')
-    cdef double [:] htr = numpy.zeros((nlayers,), dtype='double')
-    getoutput_(&totuflux[0], &totdflux[0], &fnet[0], &htr[0])
-    return totuflux, totdflux, fnet, htr
+    totuflux = numpy.zeros((nlayers + 1,), dtype='double')
+    totdflux = numpy.zeros((nlayers + 1,), dtype='double')
+    fnet = numpy.zeros((nlayers + 1,), dtype='double')
+    htr = numpy.zeros((nlayers + 1,), dtype='double')
+    cdef double [:] totuflux_v = totuflux
+    cdef double [:] totdflux_v = totdflux
+    cdef double [:] fnet_v = fnet
+    cdef double [:] htr_v = htr
+    getoutput_(&totuflux_v[0], &totdflux_v[0], &fnet_v[0], &htr_v[0])
+    return totuflux, totdflux, fnet, htr[:-1]
+
