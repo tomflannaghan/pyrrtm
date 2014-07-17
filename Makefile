@@ -50,7 +50,7 @@ O_LW_WRAPPER = ${LW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
 
 ## Python module
 
-PYMOD_BPATH = $(BPATH)/pymodule
+PYMOD_BPATH = $(BPATH)/pyrrtm
 PPYMOD_SRCS = 	netcdf_interface.py native_interface.py __init__.py \
 				chem.py low_level.py
 PYMOD_SRCS = ${PPYMOD_SRCS:%.py=python/%.py}
@@ -68,19 +68,19 @@ PYX_CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing -I/usr/include/python2.
 
 ######################
 
-.PHONY : all clean pymodule_netcdf pymodule_native
+.PHONY : cli_netcdf clean pymodule_netcdf pymodule_native
 
-all : | $(LW_BPATH) $(SW_BPATH) $(LW_OUTPUT) $(SW_OUTPUT)
+cli_netcdf : | $(LW_BPATH) $(SW_BPATH) $(LW_OUTPUT) $(SW_OUTPUT)
 
 clean :
 	rm -rf $(BPATH)
 
-pymodule_netcdf : all $(PYMOD_SRCS)
+pymodule_netcdf : cli_netcdf $(PYMOD_SRCS)
 	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
 	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_SRCS) $(PYMOD_BPATH)/.
 
-pymodule_native : all $(LW_SO) $(SW_SO) $(PYMOD_SRCS)
+pymodule_native : cli_netcdf $(LW_SO) $(SW_SO) $(PYMOD_SRCS)
 	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
 	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) $(PYMOD_BPATH)/.
