@@ -68,12 +68,15 @@ PYX_CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing -I/usr/include/python2.
 
 ######################
 
-.PHONY : cli_netcdf clean pymodule_netcdf pymodule_native
+.PHONY : cli_netcdf clean pymodule_netcdf pymodule_native test
 
 cli_netcdf : | $(LW_BPATH) $(SW_BPATH) $(LW_OUTPUT) $(SW_OUTPUT)
 
 clean :
 	rm -rf $(BPATH)
+
+test : $(PYMOD_BPATH)
+	cd tests; python test_pyrrtm.py
 
 pymodule_netcdf : cli_netcdf $(PYMOD_SRCS)
 	rm -rf $(PYMOD_BPATH)
