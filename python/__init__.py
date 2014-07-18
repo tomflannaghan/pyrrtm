@@ -1,6 +1,7 @@
 # The low level interface
 import low_level
 use_native = low_level.use_native
+has_native = low_level.has_native
 
 # The high level pythonic interface
 import numpy

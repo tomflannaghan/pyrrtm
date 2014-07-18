@@ -2,10 +2,10 @@ import imp
 
 # This code tests for the presence of the native interface and imports
 # if present.
-_native_exists = False
+has_native = False
 try:
     import native_interface
-    _native_exists = True
+    has_native = True
 except ImportError:
     pass
 
@@ -25,7 +25,7 @@ def use_native(state=True):
     '''
     global run_lw_rrtm, run_sw_rrtm
     if state:
-        assert _native_exists
+        assert has_native
         run_lw_rrtm = native_interface.run_lw_rrtm
         run_sw_rrtm = native_interface.run_sw_rrtm
     else:
