@@ -64,7 +64,7 @@ SW_SO = $(BPATH)/$(SW_SO_BASE).so
 SO_FFLAGS = -fPIC
 LW_SO_O = ${LW_FSRCS:%.f=$(LW_BPATH)/%_so.o}
 SW_SO_O = ${SW_FSRCS:%.f=$(SW_BPATH)/%_so.o}
-PYX_CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing -I/usr/include/python2.7
+PYX_CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing $(shell python-config --includes)
 
 ######################
 
