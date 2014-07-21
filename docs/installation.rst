@@ -10,8 +10,8 @@ for details on the differences between the two installations.
 
 .. _install.native:
 
-pyrrtm with native interface and NetCDF
----------------------------------------
+Full installation of pyrrtm
+---------------------------
 
 Requires:
 
@@ -37,13 +37,14 @@ To install the python module, copy ``build/pyrrtm`` into your python path.
 
    I have had some issues with old compilers. Best results come from
    recent versions of ``gfortran``. Always test this build with ``make
-   test``.
+   test``. If the tests fail, install :ref:`install.netcdfonly`
+   instead.
 
 
 .. _install.netcdfonly:
 
-pyrrtm with NetCDF
-------------------
+pyrrtm with NetCDF only
+-----------------------
 
 Requires:
 

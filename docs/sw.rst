@@ -29,7 +29,7 @@ We assume that ``T``, ``p``, ``H2O`` and ``O3`` are numpy arrays of equal
 length. The surface temperature is set as equal to ``T[0]``. Shortwave
 radiative transfer is then performed as follows::
   
-  sw = pyrrtm.SW()
+  sw = pyrrtm.SW(len(T))
   sw.tavel = T
   sw.pavel = p
   sw.set_species('H2O', H2O, 'mmr')
@@ -55,7 +55,7 @@ The ``SW`` Class
    
    Performs the shortwave radiative transfer calculations. The
    attributes and methods for ``SW`` are very similar to those for
-   ``LW``, the longwave radiation class.
+   :class:`LW`, the longwave radiation class.
 
 .. _sw.profile:
    

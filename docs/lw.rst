@@ -53,8 +53,8 @@ The ``LW`` Class
 
 .. class:: LW(nlayers)
    
-   Performs the longwave radiative transfer calculations. Once
-   initialized, the following attributes can be set.
+   Performs the longwave radiative transfer calculations. ``nlayers``
+   must be an integer and sets the number of layers in the model.
    
 .. _lw.profile:
    
