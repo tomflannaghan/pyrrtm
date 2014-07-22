@@ -4,3 +4,5 @@
 
 - Documentation is available [here](http://pyrrtm.flannaghan.com).
 - Please [contact me](mailto:tomflannaghan@gmail.com) if you wish to contribute or have any questions.
+
+Also included in pyrrtm is a stand-alone netcdf interface. This is a much more convenient way of interacting with the RRTM code than the ascii interface, and would be of use to anyone not interested in using RRTM with python. See [`cli_doc.org`](https://github.com/tomflannaghan/pyrrtm/blob/master/cli_doc.org) for documentation on just the command line interface.
