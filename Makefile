@@ -42,7 +42,7 @@ SW_WRAPPER_CSRCS = rrtm_sw_netcdf.c common.c sw_wrapper.c
 HEADERS = 	$(LW_SRC)/librrtm.h $(WRAPPER_SRC)/common.h \
 			$(WRAPPER_SRC)/lw_wrapper.h $(WRAPPER_SRC)/sw_wrapper.h
 
-CFLAGS = $(CFLAGS)
+CFLAGS += 
 LFLAGS = -lnetcdf -lm -lgfortran
 
 O_SW_WRAPPER = ${SW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
