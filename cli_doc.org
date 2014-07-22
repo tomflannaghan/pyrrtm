@@ -1,5 +1,7 @@
 #+startup: indent
 
+This is the documentation for the NetCDF command line interface component of this package.
+
 * Installing
 
 Requires 
