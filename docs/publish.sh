@@ -1,1 +1,1 @@
-rsync -rv _build/html/* flannaghan:public_html/pyrrtm_docs
+rsync -rv _build/html/* flannaghan:public_html/pyrrtm_docs/.
