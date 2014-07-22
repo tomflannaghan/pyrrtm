@@ -96,9 +96,7 @@ The Profile of Temperature and Pressure
 .. note::
 
    RRTM requires both layer average and level data for pressure and
-   temperature. The radiative transfer calculation is sensitive to
-   :attr:`SW.pavel`, :attr:`SW.pz` and :attr:`SW.tavel`, but
-   :attr:`SW.tz` does not greatly affect the result.
+   temperature.
 
    Given the level data :attr:`SW.pz` and :attr:`SW.tz`, the layer
    average data :attr:`SW.pavel` and :attr:`SW.tavel` can be
