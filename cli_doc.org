@@ -1,4 +1,3 @@
-#+title: Command Line Interface Documentation for RRTM.
 #+startup: indent
 
 * Installing
@@ -18,7 +17,7 @@ Compile the code as follows:
 
 To use, copy =build/rrtm_nc= and =build/rrtm_sw_nc= into your path or working directory.
 
-* Command Line Interface using NetCDF
+* Documentation
 ** Long wave model
 *** Command line interface
 
