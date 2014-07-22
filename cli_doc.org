@@ -46,7 +46,7 @@ The input file must be a netcdf file including the all of the following variable
           :lw_iscat ;
           :lw_tbound ;
           :lw_numangs ;
-        :lw_semis ;
+          :lw_semis ;
   }
 #+END_EXAMPLE
 
@@ -113,10 +113,10 @@ The input file must be a netcdf file including the all of the following variable
   // global attributes:
           :sw_ireflect  ;
           :sw_nstr ;
-        :sw_semis ;
-        :sw_solvar ;
-        :sw_juldat ;
-        :sw_sza ;
+          :sw_semis ;
+          :sw_solvar ;
+          :sw_juldat ;
+          :sw_sza ;
   }
 #+END_EXAMPLE
 
