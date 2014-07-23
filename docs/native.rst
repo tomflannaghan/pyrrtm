@@ -18,12 +18,12 @@ errors thrown by RRTM are not handled at all and will often kill the
 python interpreter. As such, the native interface is always disabled
 by default but can be activated using :func:`use_native`.
 
-.. function:: pyrrtm.use_native(state=True)
+.. function:: use_native(state=True)
 
    Activates and deactivates the native binary interface. `state` is a
    boolean value that sets the state of the native binary interface.
 
-.. attribute:: pyrrtm.has_native
+.. attribute:: has_native
 
    Indicates whether pyrrtm has been compiled with support for the
    native interface.
