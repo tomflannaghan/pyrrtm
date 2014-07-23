@@ -31,7 +31,11 @@ To test::
 
   $ make test
 
-To install the python module, copy ``build/pyrrtm`` into your python path.
+To install::
+
+  $ make pymodule_install
+
+This may require ``sudo`` or root privileges.
 
 .. warning::
 
@@ -63,4 +67,8 @@ To test::
 
   $ make test
 
-To install the python module, copy ``build/pyrrtm`` into your python path.
+To install::
+
+  $ make pymodule_install
+
+This may require ``sudo`` or root privileges.

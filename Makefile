@@ -50,7 +50,8 @@ O_LW_WRAPPER = ${LW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
 
 ## Python module
 
-PYMOD_BPATH = $(BPATH)/pyrrtm
+PYMOD_NAME = pyrrtm
+PYMOD_BPATH = $(BPATH)/$(PYMOD_NAME)
 PPYMOD_SRCS = 	netcdf_interface.py native_interface.py __init__.py \
 				chem.py low_level.py
 PYMOD_SRCS = ${PPYMOD_SRCS:%.py=python/%.py}
@@ -87,6 +88,9 @@ pymodule_native : cli_netcdf $(LW_SO) $(SW_SO) $(PYMOD_SRCS)
 	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
 	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) $(PYMOD_BPATH)/.
+
+pymodule_install : $(PYMOD_BPATH)
+	cp -rf $(PYMOD_BPATH) $(shell python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")/$(PYMOD_NAME)
 
 ## Netcdf interface:
 
