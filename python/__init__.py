@@ -48,7 +48,7 @@ class _ArrayProperty (object):
         if isinstance(arr, numpy.ndarray):
             if arr.shape != self._shape(obj): 
                 raise Exception("Shape mismatch in `%s`" % self.name)
-            setattr(obj, attr, arr)
+            setattr(obj, attr, arr.copy())
         else:
             val = numpy.zeros(self._shape(obj), dtype="double") + arr
             setattr(obj, attr, val)
