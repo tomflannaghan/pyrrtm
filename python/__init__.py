@@ -113,8 +113,8 @@ class _BaseRad (object):
         """Returns a mass-weighted layer average temperature, assuming that
         temperature is linearly interpolated in log-pressure coordinates.
         """
-        T = self.tz
-        p = self.pz
+        T = self._tz
+        p = self._pz
         log = numpy.log(p[1:]/p[:-1])
         self.tavel = T[:-1] \
                      - (T[1:] - T[:-1]) / ((p[1:] - p[:-1]) * -log) \
@@ -122,7 +122,7 @@ class _BaseRad (object):
     
     def auto_pavel(self):
         """Returns the mass-weighted layer average pressure."""
-        self.pavel = (self.pz[1:] + self.pz[:-1]) / 2.
+        self.pavel = (self._pz[1:] + self._pz[:-1]) / 2.
 
     def auto_pz(self):
         '''A heuristic method for estimating pz based on pavel. This is not a
@@ -152,8 +152,8 @@ class _BaseRad (object):
             return score + numpy.clip(error, -0.1, 0.1)
 
         # find the root in trial
-        p0 = scipy.optimize.bisect(trial, 1, 2000, args=(self.pavel,))
-        self.pz = compute_pz(p0, self.pavel)
+        p0 = scipy.optimize.bisect(trial, 1, 2000, args=(self._pavel,))
+        self.pz = compute_pz(p0, self._pavel)
 
 
     def auto_tz_alternative(self):
@@ -164,7 +164,7 @@ class _BaseRad (object):
         most applications.
 
         '''
-        pz = self.pz
+        pz = self._pz
         p_0 = pz[:-1]
         p_1 = pz[1:]
         log = numpy.log(p_1 / p_0)
@@ -189,8 +189,8 @@ class _BaseRad (object):
             return error
 
         # find the root in trial
-        t0 = scipy.optimize.minimize(trial, 300, args=(self.tavel,)).x[0]
-        self.tz = compute_tz(t0, self.tavel)
+        t0 = scipy.optimize.minimize(trial, 300, args=(self._tavel,)).x[0]
+        self.tz = compute_tz(t0, self._tavel)
 
     def auto_tz(self):
         '''This is a cheaper method that finds a reasonable profile for tz but
@@ -199,7 +199,7 @@ class _BaseRad (object):
         method.
 
         '''
-        tavel = self.tavel
+        tavel = self._tavel
         tz = numpy.zeros(len(tavel)+1)
         tz[1:-1] = (tavel[1:] + tavel[:-1]) * 0.5
         tz[0] = 2 * tavel[0] - tavel[1]
