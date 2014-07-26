@@ -5,15 +5,15 @@ C     $Date: 2004/04/15 18:42:10 $
       SUBROUTINE CLDPROP(ICLDATM)
 
 C
-C  --------------------------------------------------------------------------
-C |                                                                          |
-C |  Copyright 2002, 2003, Atmospheric & Environmental Research, Inc. (AER). |
-C |  This software may be used, copied, or redistributed as long as it is    |
-C |  not sold and this copyright notice is reproduced on each copy made.     |
-C |  This model is provided as is without any express or implied warranties. |
-C |                       (http://www.rtweb.aer.com/)                        |
-C |                                                                          |
-C  --------------------------------------------------------------------------
+C  ---------------------------------------------------------------------
+C |                                                                     
+C |  Copyright 2002, 2003, Atmospheric & Environmental Research, Inc. (A
+C |  This software may be used, copied, or redistributed as long as it i
+C |  not sold and this copyright notice is reproduced on each copy made.
+C |  This model is provided as is without any express or implied warrant
+C |                       (http://www.rtweb.aer.com/)                   
+C |                                                                     
+C  ---------------------------------------------------------------------
 
 C     PURPOSE:  COMPUTE THE CLOUD OPTICAL DEPTH(S) FOR EACH CLOUDY
 C               LAYER.  NOTE:  ONLY INFLAG = 0 AND INFLAG=2/LIQFLAG=1,
@@ -58,15 +58,15 @@ C     0 for INFLAG do not distingish being liquid and ice clouds.
 C     INFLAG = 2 does distinguish between liquid and ice clouds, and
 C     requires further user input to specify the method to be used to 
 C     compute the aborption due to each.
-C     INFLAG = 0:  For each cloudy layer, the cloud fraction, the cloud optical
+C     INFLAG = 0:  For each cloudy layer, the cloud fraction, the cloud 
 C                   depth, the cloud single-scattering albedo, and the
 C                   moments of the phase function (0:NSTREAM).  Note
 C                   that these values are delta-m scaled within this
 C                   subroutine.
 C     INFLAG = 2:  For each cloudy layer, the cloud fraction, cloud 
 C                  water path (g/m2), and cloud ice fraction are input.
-C       ICEFLAG = 2:  The ice effective radius (microns) is input and the
-C                     optical properties due to ice clouds are computed from
+C       ICEFLAG = 2:  The ice effective radius (microns) is input and th
+C                     optical properties due to ice clouds are computed 
 C                     the optical properties stored in the RT code,
 C                     STREAMER v3.0 (Reference: Key. J., Streamer 
 C                     User's Guide, Cooperative Institute for
@@ -76,20 +76,20 @@ C                     131.0 micron.
 C       ICEFLAG = 3: The ice generalized effective size (dge) is input
 C                    and the optical depths, single-scattering albedo,
 C                    and phase function moments are calculated as in
-C                    Q. Fu, J. Climate, (1996). Q. Fu provided high resolution
+C                    Q. Fu, J. Climate, (1996). Q. Fu provided high reso
 C                    tables which were appropriately averaged for the
 C                    bands in RRTM_SW.  Linear interpolation is used to
 C                    get the coefficients from the stored tables.
 C                    Valid range of values for dge are between 5.0 and
 C                    140.0 micron.
-C       LIQFLAG = 1:  The water droplet effective radius (microns) is input 
-C                     and the optical depths due to water clouds are computed 
-C                     as in Hu and Stamnes, J., Clim., 6, 728-742, (1993).
-C                     The values for absorption coefficients appropriate for
-C                     the spectral bands in RRTM have been obtained for a 
-C                     range of effective radii by an averaging procedure 
-C                     based on the work of J. Pinto (private communication).
-C                     Linear interpolation is used to get the absorption 
+C       LIQFLAG = 1:  The water droplet effective radius (microns) is in
+C                     and the optical depths due to water clouds are com
+C                     as in Hu and Stamnes, J., Clim., 6, 728-742, (1993
+C                     The values for absorption coefficients appropriate
+C                     the spectral bands in RRTM have been obtained for 
+C                     range of effective radii by an averaging procedure
+C                     based on the work of J. Pinto (private communicati
+C                     Linear interpolation is used to get the absorption
 C                     coefficients for the input effective radius.
 C  
 
@@ -147,7 +147,7 @@ C     Calculation of absorption coefficients due to ice clouds.
  2000             CONTINUE
                ELSEIF (ICEFLAG .EQ. 2) THEN
                   IF (RADICE .LT. 5.0 .OR. RADICE .GT. 131.)
-     &                 STOP 'ICE RADIUS OUT OF BOUNDS'
+     &CALL RRTMERR('cldprop.f:150:ICE RADIUS OUT OF BOUNDS',38)
                   NCBANDS = 29
                   FACTOR = (RADICE - 2.)/3.
                   INDEX = INT(FACTOR)
@@ -167,8 +167,8 @@ C     Calculation of absorption coefficients due to ice clouds.
                      FORWICE(IB) = GICE(IB)**NSTR
  2200             CONTINUE
                ELSEIF (ICEFLAG .EQ. 3) THEN
-                  IF (RADICE .LT. 5.0 .OR. RADICE .GT. 140.0) STOP
-     &                 'ICE EFFECTIVE SIZE OUT OF BOUNDS'
+                  IF (RADICE .LT. 5.0 .OR. RADICE .GT. 140.0) 
+     &CALL RRTMERR('cldprop.f:171:ICE EFFECTIVE SIZE OUT OF BOUNDS',46)
                   NCBANDS = 29
                   FACTOR = (RADICE - 2.)/3.
                   INDEX = INT(FACTOR)
@@ -188,25 +188,25 @@ C     Calculation of absorption coefficients due to ice clouds.
                      FDELTA(IB) = FDLICE3(INDEX,IB) + 
      &                    FINT * (FDLICE3(INDEX+1,IB) - 
      &                    FDLICE3(INDEX,IB))
-                     if (fdelta(ib) .lt. 0.0) STOP
-     &                    'FDELTA LESS THAN 0.0'
-                     if (fdelta(ib) .gt. 1.0) STOP
-     &                    'FDELTA GT THAN 1.0'                     
+                     if (fdelta(ib) .lt. 0.0)
+     &CALL RRTMERR('cldprop.f:192:FDELTA LESS THAN 0.0',34)
+                     if (fdelta(ib) .gt. 1.0)
+     &CALL RRTMERR('cldprop.f:194:FDELTA GT THAN 1.0',32)
                      FORWICE(IB) = FDELTA(IB) + 0.5 / SSACOICE(IB)
 c     See Fu 1996 p. 2067 
                      IF (FORWICE(IB) .GT. GICE(IB)) 
      &                    FORWICE(IB) = GICE(IB)
-c     Check to ensure all calculated quantities are within physical limits.
-                     if (extcoice(ib) .lt. 0.0) STOP
-     &                    'ICE EXTINCTION LESS THAN 0.0'
-                     if (ssacoice(ib) .gt. 1.0) STOP
-     &                    'ICE SSA GRTR THAN 1.0'
-                     if (ssacoice(ib) .lt. 0.0) STOP
-     &                    'ICE SSA LESS THAN 0.0'
-                     if (gice(ib) .gt. 1.0) STOP
-     &                    'ICE ASYM GRTR THAN 1.0'
-                     if (gice(ib) .lt. 0.0) STOP
-     &                    'ICE ASYM LESS THAN 0.0'
+c     Check to ensure all calculated quantities are within physical limi
+                     if (extcoice(ib) .lt. 0.0)
+     &CALL RRTMERR('cldprop.f:201:ICE EXTINCTION LESS THAN 0.0',42)
+                     if (ssacoice(ib) .gt. 1.0)
+     &CALL RRTMERR('cldprop.f:203:ICE SSA GRTR THAN 1.0',35)
+                     if (ssacoice(ib) .lt. 0.0)
+     &CALL RRTMERR('cldprop.f:205:ICE SSA LESS THAN 0.0',35)
+                     if (gice(ib) .gt. 1.0)
+     &CALL RRTMERR('cldprop.f:207:ICE ASYM GRTR THAN 1.0',36)
+                     if (gice(ib) .lt. 0.0)
+     &CALL RRTMERR('cldprop.f:209:ICE ASYM LESS THAN 0.0',36)
  2300             CONTINUE
                ENDIF
                
@@ -222,8 +222,8 @@ C     Calculation of absorption coefficients due to water clouds.
  2350             CONTINUE
                ELSEIF (LIQFLAG .EQ. 1) THEN
                   RADLIQ = CLDDAT4(LAY)
-                  IF (RADLIQ .LT. 1.5 .OR. RADLIQ .GT. 60.) STOP
-     &                 'LIQUID EFFECTIVE RADIUS OUT OF BOUNDS'
+                  IF (RADLIQ .LT. 1.5 .OR. RADLIQ .GT. 60.)
+     &CALL RRTMERR('cldprop.f:226:LIQUID EFFECTIVE RADIUS OUT OF BO',51)
                   INDEX = RADLIQ - 1.5
                   IF (INDEX .EQ. 0) INDEX = 1
                   IF (INDEX .EQ. 58) INDEX = 57
@@ -237,17 +237,17 @@ C     Calculation of absorption coefficients due to water clouds.
                      GLIQ(IB) = ASYLIQ1(INDEX,IB) + FINT *
      &                    (ASYLIQ1(INDEX+1,IB) - ASYLIQ1(INDEX,IB))
                      FORWLIQ(IB) = GLIQ(IB)**NSTR
-c     Check to ensure all calculated quantities are within physical limits.
-                     if (extcoliq(ib) .lt. 0.0) STOP
-     &                    'LIQUID EXTINCTION LESS THAN 0.0'
-                     if (ssacoliq(ib) .gt. 1.0) STOP
-     &                    'LIQUID SSA GRTR THAN 1.0'
-                     if (ssacoliq(ib) .lt. 0.0) STOP
-     &                    'LIQUID SSA LESS THAN 0.0'
-                     if (gliq(ib) .gt. 1.0) STOP
-     &                    'LIQUID ASYM GRTR THAN 1.0'
-                     if (gliq(ib) .lt. 0.0) STOP
-     &                    'LIQUID ASYM LESS THAN 0.0'
+c     Check to ensure all calculated quantities are within physical limi
+                     if (extcoliq(ib) .lt. 0.0)
+     &CALL RRTMERR('cldprop.f:242:LIQUID EXTINCTION LESS THAN 0.0',45)
+                     if (ssacoliq(ib) .gt. 1.0)
+     &CALL RRTMERR('cldprop.f:244:LIQUID SSA GRTR THAN 1.0',38)
+                     if (ssacoliq(ib) .lt. 0.0)
+     &CALL RRTMERR('cldprop.f:246:LIQUID SSA LESS THAN 0.0',38)
+                     if (gliq(ib) .gt. 1.0)
+     &CALL RRTMERR('cldprop.f:248:LIQUID ASYM GRTR THAN 1.0',39)
+                     if (gliq(ib) .lt. 0.0)
+     &CALL RRTMERR('cldprop.f:250:LIQUID ASYM LESS THAN 0.0',39)
  2400             CONTINUE
                ENDIF
                
@@ -283,7 +283,7 @@ C     A CLEAR LAYER SEPARATES CLOUDY LAYERS, RESET COUNTER
                   XMOM(0,LAY,IB) = 1.0
                   IF (ICEFLAG .EQ. 3) THEN
 c     In accordance with the 1996 Fu paper, equation A.3, 
-c     the moments for ice were calculated depending on whether using spheres
+c     the moments for ice were calculated depending on whether using sph
 c     or hexagonal ice crystals.
                      DO 2750 ISTR = 1, NSTR
                         XMOM(ISTR,LAY,IB) = 

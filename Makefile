@@ -28,11 +28,12 @@ O_LW = ${LW_FSRCS:%.f=$(LW_BPATH)/%.o} ${LW_CSRCS:%.c=$(LW_BPATH)/%.o}
 SW_FSRCS = librrtm_sw.f cldprop.f LINPAK.f setcoef.f disort.f taumoldis.f   \
 		   ErrPack.f RDI1MACH.f  extra.f rrtatm.f k_g.f \
 		   rtrdis.f $(UTIL_FILE)
+SW_CSRCS = librrtmsafe_sw.c
 
 SW_BPATH = $(BPATH)/sw
 SW_SRC = sw
 
-O_SW = ${SW_FSRCS:%.f=$(SW_BPATH)/%.o}
+O_SW = ${SW_FSRCS:%.f=$(SW_BPATH)/%.o} ${SW_CSRCS:%.c=$(SW_BPATH)/%.o}
 
 ## wrapper
 
@@ -63,7 +64,7 @@ LW_SO = $(BPATH)/$(LW_SO_BASE).so
 SW_SO = $(BPATH)/$(SW_SO_BASE).so
 SO_FFLAGS = -fPIC
 LW_SO_O = ${LW_FSRCS:%.f=$(LW_BPATH)/%_so.o} ${LW_CSRCS:%.c=$(LW_BPATH)/%_so.o}
-SW_SO_O = ${SW_FSRCS:%.f=$(SW_BPATH)/%_so.o}
+SW_SO_O = ${SW_FSRCS:%.f=$(SW_BPATH)/%_so.o} ${SW_CSRCS:%.c=$(SW_BPATH)/%_so.o}
 PYX_CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing $(shell python-config --includes)
 
 ######################
@@ -82,11 +83,14 @@ pymodule_netcdf : cli_netcdf $(PYMOD_SRCS)
 	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
 	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_SRCS) $(PYMOD_BPATH)/.
+	echo "has_native = False" > $(PYMOD_BPATH)/has_native.py
 
 pymodule_native : cli_netcdf $(LW_SO) $(SW_SO) $(PYMOD_SRCS)
 	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
-	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) $(PYMOD_BPATH)/.
+	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) \
+	   $(PYMOD_BPATH)/.
+	echo "has_native = True" > $(PYMOD_BPATH)/has_native.py
 
 pymodule_install : $(PYMOD_BPATH)
 	cp -rf $(PYMOD_BPATH) $(shell python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")/$(PYMOD_NAME)
@@ -111,8 +115,11 @@ $(LW_BPATH)/%.o : $(LW_SRC)/%.c
 $(SW_BPATH) :
 	mkdir -p $(SW_BPATH)
 
-$(SW_BPATH)/%.o : $(SW_SRC)/%.f
+$(SW_BPATH)/%.o : $(SW_SRC)/fort/%.f
 	$(FC) -c $(FCFLAG)  $< -o $@
+
+$(SW_BPATH)/%.o : $(SW_SRC)/%.c
+	gcc -c $(CFLAGS) $< -o $@
 
 $(WRAPPER_BPATH)/%.o : $(WRAPPER_SRC)/%.c
 	gcc -c $(CFLAGS) $< -o $@
@@ -141,6 +148,9 @@ $(LW_BPATH)/%_so.o : $(LW_SRC)/fort/%.f
 $(LW_BPATH)/%_so.o : $(LW_SRC)/%.c
 	gcc -c $(PYX_CFLAGS) $(CFLAGS) $< -o $@
 
-$(SW_BPATH)/%_so.o : $(SW_SRC)/%.f
+$(SW_BPATH)/%_so.o : $(SW_SRC)/fort/%.f
 	$(FC) -c $(FCFLAG) $(SO_FFLAGS)  $< -o $@
+
+$(SW_BPATH)/%_so.o : $(SW_SRC)/%.c
+	gcc -c $(PYX_CFLAGS) $(CFLAGS) $< -o $@
 

@@ -2,12 +2,9 @@ import imp
 
 # This code tests for the presence of the native interface and imports
 # if present.
-has_native = False
-try:
+from has_native import has_native # a ghost module made by the make file.
+if has_native:
     import native_interface
-    has_native = True
-except ImportError:
-    pass
 
 # always import the netcdf interface as the default. This is because
 # it has superior error handling. The native library is much much

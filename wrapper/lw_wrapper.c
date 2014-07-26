@@ -153,8 +153,6 @@ void lw_run(void) {
                    totuflux, totdflux, fnet, htr) != 0) {
     printf("Error: %s\n", rrtmerr_message);
     exit(1);
-  } else {
-    printf("Success!\n");
   }
 }
 

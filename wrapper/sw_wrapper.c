@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "common.h"
-#include "../sw/librrtm_sw.h"
+#include "../sw/librrtmsafe_sw.h"
 
 // make sure these values are sufficiently large:
 #define MAXMOL 7
@@ -151,12 +151,13 @@ int sw_write_netcdf(const char *ofile) {
 
 
 void sw_run(void) {
-  long two = 2, one = 1, zero = 0;
-  initrrtm_(&nstr, &zero, &zero, &juldat, &sza, &one, &solvar);
-  initsurface_(&one, &ireflect, &semis);
-  initprofile_(&nlayers, tavel, pavel, tz, pz, &nmol, wkl, wbrodl);
-  execrun_();
-  getoutput_(totuflux, totdflux, fnet, htr);
+  if (rrtmsafe_sw_run(nstr, 0, 0, juldat, sza, 1, &solvar, 
+                      1, ireflect, &semis,
+                      nlayers, tavel, pavel, tz, pz, nmol, wkl, wbrodl,
+                      totuflux, totdflux, fnet, htr) != 0) {
+    printf("Error: %s\n", rrtmerr_message);
+    exit(1);
+  }
 }
 
 
