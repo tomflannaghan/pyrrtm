@@ -1,5 +1,10 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <setjmp.h>
+#include "librrtmsafe.h"
+
 /*
- * This is a C header file that allows C-Fortran interop.
+ * This defines everything in librrtm.f
  *
  * The shape of each argument is documented using C array
  * ordering. Everything is passed by pointer including
@@ -30,3 +35,42 @@ void getoutput_(double * totuflux, // upwelling flux [nlayers + 1]
                 double * totdflux, // downwelling flux [nlayers + 1]
                 double * fnet,     // net flux [nlayers + 1]
                 double * htr);     // heating rate [nlayers + 1]
+
+/*
+ * Here, we write a safe wrapper that catches errors.
+ */
+
+jmp_buf rrtmerr_jump;
+
+void rrtmerr_(char * message, long * length) {
+  // this function will be called from fortran
+  int n = (int) *length;
+  int i;
+  
+  for (i=0; i<n; i++) {
+    rrtmerr_message[i] = message[i];
+  }
+  rrtmerr_message[i] = '\0';
+  // return control to run_rrtm.
+  longjmp(rrtmerr_jump, 1);
+}
+
+int rrtmsafe_run(long iscat, long numangs, 
+                 long iemiss, double tbound, long ireflect, double * semis,
+                 long nlayers, double * tavel, double * pavel, 
+                 double * tz, double * pz,
+                 long nmol, double * wkl, double * wbrodl,
+                 double * totuflux, double * totdflux, 
+                 double * fnet, double * htr) {
+  
+  if (! setjmp(rrtmerr_jump) ) {
+    initrrtm_(&iscat, &numangs);
+    initsurface_(&iemiss, &tbound, &ireflect, semis);
+    initprofile_(&nlayers, tavel, pavel, tz, pz, &nmol, wkl, wbrodl);
+    execrun_();
+    getoutput_(totuflux, totdflux, fnet, htr);
+    return 0;
+  }
+  // if we get to here, there was an error.
+  return 1;
+}

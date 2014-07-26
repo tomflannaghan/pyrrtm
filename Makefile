@@ -16,11 +16,12 @@ UTIL_FILE = util_gfortran.f
 LW_FSRCS = 	librrtm.f rtreg.f rtr.f rrtatm.f setcoef.f taumol.f rtregcld.f \
 			rtrcld.f extra.f rtrcldmr.f rtregcldmr.f k_g.f cldprop.f \
 			rtrdis.f RDI1MACH.f  ErrPack.f LINPAK.f disort.f $(UTIL_FILE)
+LW_CSRCS =  librrtmsafe.c
 
 LW_BPATH = $(BPATH)/lw
 LW_SRC = lw
 
-O_LW = ${LW_FSRCS:%.f=$(LW_BPATH)/%.o}
+O_LW = ${LW_FSRCS:%.f=$(LW_BPATH)/%.o} ${LW_CSRCS:%.c=$(LW_BPATH)/%.o}
 
 ## short wave:
 
@@ -39,8 +40,6 @@ WRAPPER_SRC = wrapper
 WRAPPER_BPATH = $(BPATH)
 LW_WRAPPER_CSRCS = rrtm_netcdf.c common.c lw_wrapper.c
 SW_WRAPPER_CSRCS = rrtm_sw_netcdf.c common.c sw_wrapper.c
-HEADERS = 	$(LW_SRC)/librrtm.h $(WRAPPER_SRC)/common.h \
-			$(WRAPPER_SRC)/lw_wrapper.h $(WRAPPER_SRC)/sw_wrapper.h
 
 CFLAGS += 
 LFLAGS = -lnetcdf -lm -lgfortran
@@ -63,7 +62,7 @@ SW_SO_BASE = librrtm_sw_wrapper
 LW_SO = $(BPATH)/$(LW_SO_BASE).so
 SW_SO = $(BPATH)/$(SW_SO_BASE).so
 SO_FFLAGS = -fPIC
-LW_SO_O = ${LW_FSRCS:%.f=$(LW_BPATH)/%_so.o}
+LW_SO_O = ${LW_FSRCS:%.f=$(LW_BPATH)/%_so.o} ${LW_CSRCS:%.c=$(LW_BPATH)/%_so.o}
 SW_SO_O = ${SW_FSRCS:%.f=$(SW_BPATH)/%_so.o}
 PYX_CFLAGS = -fPIC -pthread -fwrapv -fno-strict-aliasing $(shell python-config --includes)
 
@@ -103,8 +102,11 @@ $(SW_OUTPUT) : $(O_SW) $(O_SW_WRAPPER)
 $(LW_BPATH) :
 	mkdir -p $(LW_BPATH)
 
-$(LW_BPATH)/%.o : $(LW_SRC)/%.f
+$(LW_BPATH)/%.o : $(LW_SRC)/fort/%.f
 	$(FC) -c $(FCFLAG)  $< -o $@
+
+$(LW_BPATH)/%.o : $(LW_SRC)/%.c
+	gcc -c $(CFLAGS) $< -o $@
 
 $(SW_BPATH) :
 	mkdir -p $(SW_BPATH)
@@ -112,7 +114,7 @@ $(SW_BPATH) :
 $(SW_BPATH)/%.o : $(SW_SRC)/%.f
 	$(FC) -c $(FCFLAG)  $< -o $@
 
-$(WRAPPER_BPATH)/%.o : $(WRAPPER_SRC)/%.c $(HEADERS)
+$(WRAPPER_BPATH)/%.o : $(WRAPPER_SRC)/%.c
 	gcc -c $(CFLAGS) $< -o $@
 
 ## Pure python interface:
@@ -123,18 +125,21 @@ $(LW_SO) : $(LW_SO_O) $(LW_BPATH)/librrtm_wrapper.o
 $(SW_SO) : $(SW_SO_O) $(SW_BPATH)/librrtm_sw_wrapper.o
 	gcc -shared $(LFLAGS) $(PYX_CFLAGS) $^ -o $@
 
-$(LW_BPATH)/librrtm_wrapper.o : $(LW_SRC)/librrtm.h $(LW_SRC)/$(LW_SO_BASE).pyx
+$(LW_BPATH)/librrtm_wrapper.o : $(LW_SRC)/$(LW_SO_BASE).pyx
 	cython $(LW_SRC)/$(LW_SO_BASE).pyx -o $(LW_BPATH)/$(LW_SO_BASE).c
 	gcc -c -I$(LW_SRC) $(CFLAGS) $(PYX_CFLAGS) \
 	    $(LW_BPATH)/$(LW_SO_BASE).c -o $@
 
-$(SW_BPATH)/librrtm_sw_wrapper.o : $(SW_SRC)/librrtm_sw.h $(SW_SRC)/$(SW_SO_BASE).pyx
+$(SW_BPATH)/librrtm_sw_wrapper.o : $(SW_SRC)/$(SW_SO_BASE).pyx
 	cython $(SW_SRC)/$(SW_SO_BASE).pyx -o $(SW_BPATH)/$(SW_SO_BASE).c
 	gcc -c -I$(SW_SRC) $(CFLAGS) $(PYX_CFLAGS) \
 	     $(SW_BPATH)/$(SW_SO_BASE).c -o $@
 
-$(LW_BPATH)/%_so.o : $(LW_SRC)/%.f
+$(LW_BPATH)/%_so.o : $(LW_SRC)/fort/%.f
 	$(FC) -c $(FCFLAG) $(SO_FFLAGS)  $< -o $@
+
+$(LW_BPATH)/%_so.o : $(LW_SRC)/%.c
+	gcc -c $(PYX_CFLAGS) $(CFLAGS) $< -o $@
 
 $(SW_BPATH)/%_so.o : $(SW_SRC)/%.f
 	$(FC) -c $(FCFLAG) $(SO_FFLAGS)  $< -o $@

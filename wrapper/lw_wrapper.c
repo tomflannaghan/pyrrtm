@@ -1,7 +1,7 @@
 #include <netcdf.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "../lw/librrtm.h"
+#include "../lw/librrtmsafe.h"
 #include "common.h"
 
 // make sure these values are sufficiently large:
@@ -147,12 +147,15 @@ int lw_write_netcdf(const char *ofile) {
 
 
 void lw_run(void) {
-  long one = 1;
-  initrrtm_(&iscat, &numangs);
-  initsurface_(&one, &tbound, &ireflect, &semis);
-  initprofile_(&nlayers, tavel, pavel, tz, pz, &nmol, wkl, wbrodl);
-  execrun_();
-  getoutput_(totuflux, totdflux, fnet, htr);
+  if (rrtmsafe_run(iscat, numangs, 
+                   1, tbound, ireflect, &semis,
+                   nlayers, tavel, pavel, tz, pz, nmol, wkl, wbrodl,
+                   totuflux, totdflux, fnet, htr) != 0) {
+    printf("Error: %s\n", rrtmerr_message);
+    exit(1);
+  } else {
+    printf("Success!\n");
+  }
 }
 
 

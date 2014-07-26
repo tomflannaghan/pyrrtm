@@ -176,9 +176,8 @@ C              Calculation of absorption coefficients due to ice clouds.
      &                    ABSICE0(2)/RADICE)
                      ICEPAT = 0
                   ELSEIF (ICEFLAG .EQ. 1) THEN
-      IF (RADICE .LT. 13.0 .OR. RADICE .GT. 130.)
-     &CALL RRTMERR('cldprop.f:178:',14)
-     &                    'ICE RADIUS OUT OF BOUNDS'
+                     IF (RADICE .LT. 13.0 .OR. RADICE .GT. 130.)
+     &CALL RRTMERR('cldprop.f:179:ICE RADIUS OUT OF BOUNDS',38)
                      NCBANDS = 5
                      DO 2000 IB = 1, NCBANDS
                         ABSCOICE(IB) = FICE * (ABSICE1(1,IB) + 
@@ -186,9 +185,8 @@ C              Calculation of absorption coefficients due to ice clouds.
  2000                CONTINUE
                      ICEPAT = 1
                   ELSEIF (ICEFLAG .EQ. 2) THEN
-      IF (RADICE .LT. 5.0 .OR. RADICE .GT. 131.)
-     &CALL RRTMERR('cldprop.f:187:',14)
-     &                    'ICE RADIUS OUT OF BOUNDS'
+                     IF (RADICE .LT. 5.0 .OR. RADICE .GT. 131.)
+     &CALL RRTMERR('cldprop.f:188:ICE RADIUS OUT OF BOUNDS',38)
                      NCBANDS = 16
                      FACTOR = (RADICE - 2.)/3.
                      INDEX = INT(FACTOR)
@@ -202,9 +200,8 @@ C              Calculation of absorption coefficients due to ice clouds.
  2200                CONTINUE
                      ICEPAT = 2
                   ELSEIF (ICEFLAG .EQ. 3) THEN
-      IF (RADICE .LT. 5.0 .OR. RADICE .GT. 140.)
-     &CALL RRTMERR('cldprop.f:202:',14)
-     &                    'ICE GENERALIZED EFFECTIVE SIZE OUT OF BOUNDS'
+                     IF (RADICE .LT. 5.0 .OR. RADICE .GT. 140.)
+     &CALL RRTMERR('cldprop.f:203:ICE GENERALIZED EFFECTIVE SIZE OU',58)
                      NCBANDS = 16
                      FACTOR = (RADICE-2.)/3.
                      INDEX = INT(FACTOR)
@@ -231,9 +228,8 @@ C     Calculation of absorption coefficients due to water clouds.
                      IF (ICEPAT .EQ. 1) ICEPAT = 2
                   ELSEIF (LIQFLAG .EQ. 1) THEN
                      RADLIQ = CLDDAT4(LAY)
-      IF (RADLIQ .LT. 2.5 .OR. RADLIQ .GT. 60.)
-     &CALL RRTMERR('cldprop.f:230:',14)
-     &                    'LIQUID EFFECTIVE RADIUS OUT OF BOUNDS'
+                     IF (RADLIQ .LT. 2.5 .OR. RADLIQ .GT. 60.)
+     &CALL RRTMERR('cldprop.f:231:LIQUID EFFECTIVE RADIUS OUT OF BO',51)
                      INDEX = RADLIQ - 1.5
                      IF (INDEX .EQ. 58) INDEX = 57
                      IF (INDEX .EQ. 0) INDEX = 1
@@ -379,9 +375,8 @@ C     Separate treatment of ice clouds and water clouds.
                   
 C     Calculation of water clouds
                 FLIQ = 1. - FICE
-      IF (FLIQ .NE. 0.0) CALL RRTMERR('cldprop.f:377:',14)
-     &               'LIQUID PARTICLES NOT PERMITTED, NO SCATTERING 
-     &               PROPS AVAILABLE'
+                IF (FLIQ .NE. 0.0)
+     &CALL RRTMERR('cldprop.f:378:LIQUID PARTICLES NOT PERMITTED',44)
 
 C KEEP RUNNING TOTAL OF OPTICAL DEPTH OF EACH CLOUD.  WHEN
 C A CLEAR LAYER SEPARATES CLOUDY LAYERS, RESET COUNTER

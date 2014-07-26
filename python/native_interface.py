@@ -14,12 +14,11 @@ def run_lw_rrtm(args):
 
     Returns a dictionary containing the fluxes and heating rate.
     """
-    _rrtm_lw.initrrtm(args['iscat'], args['numangs'])
-    _rrtm_lw.initsurface(args['tbound'], args['ireflect'], args['semis'])
-    _rrtm_lw.initprofile(args['tavel'], args['pavel'], args['tz'], args['pz'], 
-                         args['wkl'].T, args['wbrodl'])
-    _rrtm_lw.execrun()
-    totuflux, totdflux, fnet, htr = _rrtm_lw.getoutput(len(args['tavel']))
+    args['wkl'] = args['wkl'].T
+    args = [args[k] for k in ['iscat', 'numangs', 
+                              'tbound', 'ireflect', 'semis',
+                              'tavel', 'pavel', 'tz', 'pz', 'wkl', 'wbrodl']]
+    totuflux, totdflux, fnet, htr = _rrtm_lw.run_rrtm(*args)
     return {'totuflux': totuflux, 'totdflux':totdflux, 'fnet':fnet, 'htr':htr}
 
 def run_sw_rrtm(args):
