@@ -4,9 +4,9 @@ cdef extern from "librrtmsafe_sw.h":
 
 import numpy
 
-def run_rrtm(nstr, juldat, sza, solvar,
-             ireflect, semis,
-             tavel, pavel, tz, pz, wkl, wbrodl):
+def run_rrtm_sw(nstr, juldat, sza, solvar,
+                ireflect, semis,
+                tavel, pavel, tz, pz, wkl, wbrodl):
     # init
     cdef double solvar_c = solvar
 
