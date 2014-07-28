@@ -91,6 +91,7 @@ pymodule_native : cli_netcdf $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version
 	echo "has_native = True" > $(PYMOD_BPATH)/has_native.py
 
 pymodule_install : $(PYMOD_BPATH)
+	rm -rf $(shell python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")/$(PYMOD_NAME)
 	cp -rf $(PYMOD_BPATH) $(shell python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")/$(PYMOD_NAME)
 
 ## Netcdf interface:
