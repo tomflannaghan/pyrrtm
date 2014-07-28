@@ -4,6 +4,11 @@ cdef extern from "librrtmsafe_sw.h":
 
 import numpy
 
+class LibRRTMSWError (Exception):
+    def __init__(self, data):
+        self.data = str(data)
+
+
 def run_rrtm_sw(nstr, juldat, sza, solvar,
                 ireflect, semis,
                 tavel, pavel, tz, pz, wkl, wbrodl):
@@ -49,6 +54,6 @@ def run_rrtm_sw(nstr, juldat, sza, solvar,
 
     if ret != 0:
         # we had a problem. print the exception.
-        raise Exception("Error in RRTM SW:" + <bytes> rrtmerr_message)
+        raise LibRRTMSWError(<bytes> rrtmerr_message)
 
     return totuflux, totdflux, fnet, htr[:-1]

@@ -1,7 +1,12 @@
-import imp
+#
+# This code allows the toggling of native and netcdf interfaces while
+# exposing a common lib to the rest of the package.
+#
 
-# This code tests for the presence of the native interface and imports
-# if present.
+# The exception class.
+class RRTMError (Exception):
+    pass
+
 from has_native import has_native # a ghost module made by the make file.
 if has_native:
     import native_interface
@@ -10,7 +15,7 @@ if has_native:
 # it has superior error handling. The native library is much much
 # faster though (especially for longwave calculations).
 import netcdf_interface
-from netcdf_interface import *
+from netcdf_interface import run_lw_rrtm, run_sw_rrtm
 
 def use_native(state=True):
     '''Use the native interface with RRTM (much less overhead -- significant

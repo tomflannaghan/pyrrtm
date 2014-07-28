@@ -2,8 +2,12 @@ cdef extern from "librrtmsafe.h":
     char rrtmerr_message[100]
     int rrtmsafe_run(long iscat, long numangs, long iemiss, double tbound, long ireflect, double * semis, long nlayers, double * tavel, double * pavel, double * tz, double * pz, long nmol, double * wkl, double * wbrodl, double * totuflux, double * totdflux, double * fnet, double * htr)
 
-
 import numpy
+
+class LibRRTMError (Exception):
+    def __init__(self, data):
+        self.data = str(data)
+
 
 def run_rrtm(iscat, numangs, tbound, ireflect, semis,
              tavel, pavel, tz, pz, wkl, wbrodl):
@@ -46,6 +50,6 @@ def run_rrtm(iscat, numangs, tbound, ireflect, semis,
 
     if ret != 0:
         # we had a problem. print the exception.
-        raise Exception("Error in RRTM LW:" + <bytes> rrtmerr_message)
+        raise LibRRTMError(<bytes> rrtmerr_message)
 
     return totuflux, totdflux, fnet, htr[:-1]

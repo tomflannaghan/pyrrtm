@@ -7,13 +7,15 @@ import tempfile
 import shutil
 import subprocess
 import scipy.io.netcdf
+from common_interface import RRTMError
+
 
 _module_dir = os.path.dirname(os.path.abspath(__file__))
 _rrtm_lw = os.path.join(_module_dir, 'rrtm_nc')
 _rrtm_sw = os.path.join(_module_dir, 'rrtm_sw_nc')
 
 
-class RRTMError(Exception):
+class RRTMNetCDFError(RRTMError):
     def __init__(self, binary, output):
         self.binary = binary
         self.output = output

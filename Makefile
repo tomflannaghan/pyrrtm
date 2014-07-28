@@ -52,9 +52,7 @@ O_LW_WRAPPER = ${LW_WRAPPER_CSRCS:%.c=$(WRAPPER_BPATH)/%.o}
 
 PYMOD_NAME = pyrrtm
 PYMOD_BPATH = $(BPATH)/$(PYMOD_NAME)
-PPYMOD_SRCS = 	netcdf_interface.py native_interface.py __init__.py \
-				chem.py low_level.py
-PYMOD_SRCS = ${PPYMOD_SRCS:%.py=python/%.py}
+PYMOD_SRCS = $(wildcard python/*.py)
 
 ## Python .so libraries
 
