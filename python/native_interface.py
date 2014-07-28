@@ -11,13 +11,12 @@ class RRTMNativeError(RRTMError):
     def __init__(self, err_message, lw=True):
         self.fname, self.line, self.msg = err_message.split(':')
         self.lw = lw
-
+    
     def __str__(self):
         lw = 'lw' if self.lw else 'sw'
-        s = "Error in %s %s:%s." % lw, self.fname, self.line
-        if self.msg.strip() != '': s += self.msg.strip()
-        return s
-
+        msg = self.msg.strip()
+        return "Error in %s %s:%s. %s" % (lw, self.fname, self.line, msg)
+        
 
 def run_lw_rrtm(args):
     """Runs the longwave RRTM code. `args` must be a dictionary containing

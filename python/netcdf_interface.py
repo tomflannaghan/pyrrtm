@@ -43,9 +43,9 @@ def run_lw_rrtm(args):
             output = subprocess.check_output(
                 [_rrtm_lw, '-i', ifile, '-o', ofile])
         except subprocess.CalledProcessError as e:
-            raise RRTMError(_rrtm_lw, e.output)
+            raise RRTMNetCDFError(_rrtm_lw, e.output)
         if not os.path.exists(ofile):
-            raise RRTMError(_rrtm_lw, output)
+            raise RRTMNetCDFError(_rrtm_lw, output)
         # process the output file `ofile` and extract the returned data.
         nc = scipy.io.netcdf.netcdf_file(ofile, 'r')
         totuflux = nc.variables['totuflux'][:].copy()
@@ -77,9 +77,9 @@ def run_sw_rrtm(args):
             output = subprocess.check_output(
                 [_rrtm_sw, '-i', ifile, '-o', ofile])
         except subprocess.CalledProcessError as e:
-            raise RRTMError(_rrtm_sw, e.output)
+            raise RRTMNetCDFError(_rrtm_sw, e.output)
         if not os.path.exists(ofile):
-            raise RRTMError(_rrtm_sw, output)
+            raise RRTMNetCDFError(_rrtm_sw, output)
         # process the output file `ofile` and extract the returned data.
         nc = scipy.io.netcdf.netcdf_file(ofile, 'r')
         totuflux = nc.variables['totuflux'][:].copy()
