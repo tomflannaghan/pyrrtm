@@ -77,16 +77,16 @@ clean :
 test : $(PYMOD_BPATH)
 	cd tests; python test_pyrrtm.py
 
-pymodule_netcdf : cli_netcdf $(PYMOD_SRCS)
+pymodule_netcdf : cli_netcdf $(PYMOD_SRCS) version
 	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
-	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_SRCS) $(PYMOD_BPATH)/.
+	cp $(LW_OUTPUT) $(SW_OUTPUT) $(PYMOD_SRCS) version $(PYMOD_BPATH)/.
 	echo "has_native = False" > $(PYMOD_BPATH)/has_native.py
 
-pymodule_native : cli_netcdf $(LW_SO) $(SW_SO) $(PYMOD_SRCS)
+pymodule_native : cli_netcdf $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version
 	rm -rf $(PYMOD_BPATH)
 	mkdir -p $(PYMOD_BPATH)
-	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) \
+	cp $(LW_OUTPUT) $(SW_OUTPUT) $(LW_SO) $(SW_SO) $(PYMOD_SRCS) version \
 	   $(PYMOD_BPATH)/.
 	echo "has_native = True" > $(PYMOD_BPATH)/has_native.py
 

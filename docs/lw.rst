@@ -198,8 +198,8 @@ Running the Model
 
    Performs the radiative transfer using RRTM.
 
-   :returns: An instance of the Output class.
-
+   :returns: An instance of the :class:`Output` class.
+   :raises: On an error in the RRTM code, raises an instance of :class:`RRTMError`.
 
 .. class:: Output
    
