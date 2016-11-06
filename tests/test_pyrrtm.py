@@ -4,23 +4,23 @@ import numpy
 import scipy.io.netcdf
 
 class BaseTest(object):
-    
+
     def setUp(self):
         # read in the data needed for the test.
         nc = scipy.io.netcdf.netcdf_file('tests_data.nc', 'r')
         self.pavel = nc.variables['pavel'][:].copy()
         self.tavel = nc.variables['tavel'][:].copy()
         self.pz = nc.variables['pz'][:].copy()
-        self.tz = nc.variables['tz'][:].copy() 
-        self.h2o = nc.variables['h2o'][:].copy() 
-        self.co2 = nc.variables['co2'][:].copy() 
-        self.o3 = nc.variables['o3'][:].copy() 
-        self.n2o = nc.variables['n2o'][:].copy() 
-        self.co = nc.variables['co'][:].copy() 
-        self.ch4 = nc.variables['ch4'][:].copy() 
-        self.o2 = nc.variables['o2'][:].copy() 
-        nc.close()        
-    
+        self.tz = nc.variables['tz'][:].copy()
+        self.h2o = nc.variables['h2o'][:].copy()
+        self.co2 = nc.variables['co2'][:].copy()
+        self.o3 = nc.variables['o3'][:].copy()
+        self.n2o = nc.variables['n2o'][:].copy()
+        self.co = nc.variables['co'][:].copy()
+        self.ch4 = nc.variables['ch4'][:].copy()
+        self.o2 = nc.variables['o2'][:].copy()
+        nc.close()
+
     def setup_profiles(self, model, auto_pz=False, auto_pavel=False):
         if not auto_pavel:
             model.tavel = self.tavel
@@ -48,7 +48,7 @@ class TestLW(BaseTest, unittest.TestCase):
         lw.ireflect = 0
         lw.semis = 1
         return lw
-    
+
     def check_result(self, key, output):
         nc = scipy.io.netcdf.netcdf_file('tests_data.nc', 'r')
         correct_htr = nc.variables['htr_' + key][:].copy()
@@ -61,7 +61,7 @@ class TestLW(BaseTest, unittest.TestCase):
         output = lw.run()
         assert self.check_result('lw', output)
 
-    @unittest.skipIf(not pyrrtm.has_native, 
+    @unittest.skipIf(not pyrrtm.has_native,
                      'pyrrtm not compiled with native library.')
     def test_native(self):
         pyrrtm.use_native(True)
@@ -84,7 +84,7 @@ class TestLW(BaseTest, unittest.TestCase):
 
 
 class TestSW(BaseTest, unittest.TestCase):
-    
+
     def setup_sw_run(self, auto_pz=False, auto_pavel=False):
         sw = pyrrtm.SW(len(self.tavel))
         self.setup_profiles(sw, auto_pz=auto_pz, auto_pavel=auto_pavel)
@@ -95,7 +95,7 @@ class TestSW(BaseTest, unittest.TestCase):
         sw.nstr = 2
         sw.solvar = 1
         return sw
-    
+
     def check_result(self, key, output):
         nc = scipy.io.netcdf.netcdf_file('tests_data.nc', 'r')
         correct_htr = nc.variables['htr_' + key][:].copy()
@@ -108,6 +108,13 @@ class TestSW(BaseTest, unittest.TestCase):
         output = sw.run()
         assert self.check_result('sw', output)
 
+    @unittest.skipIf(not pyrrtm.has_native,
+                     'pyrrtm not compiled with native library.')
+    def test_native(self):
+        pyrrtm.use_native(True)
+        sw = self.setup_sw_run()
+        output = sw.run()
+        assert self.check_result('sw', output)
 
 if __name__ == '__main__':
     unittest.main()
