@@ -91,7 +91,7 @@ int sw_read_netcdf(const char *ifile) {
   if ((nstr < 0) || (nstr > 4)) error_and_exit("sw_nstr must be 0 -- 3.");
   if ((ireflect < 0) || (ireflect > 1)) 
     error_and_exit("sw_ireflect must be 0 or 1.");
-  if ((solvar < 0) || (solvar > 1)) 
+  if ((solvar < 0) || (solvar > 3)) 
     error_and_exit("sw_solvar must be between 0 and 3.");
   if ((semis < 0) || (semis > 1)) 
     error_and_exit("semis must be between 0 and 1.");
