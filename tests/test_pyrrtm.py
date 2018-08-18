@@ -1,9 +1,12 @@
-import pyrrtm
-import unittest
+import functools
 import numpy
+import unittest
 import scipy.io.netcdf
 
-class BaseTest(object):
+import pyrrtm
+
+
+class BaseTest(unittest.TestCase):
 
     def setUp(self):
         # read in the data needed for the test.
@@ -37,7 +40,55 @@ class BaseTest(object):
         model.set_species('o2', self.o2, 'molecules/cm2')
 
 
-class TestLW(BaseTest, unittest.TestCase):
+def rrtm_test_case(cls):
+    ''' A decorator that implements the native and netcdf decorator
+        by automatically adding a native and netcdf variant of each test.
+    '''
+
+    def add_test(func, native):
+        @functools.wraps(func)
+        def wrapped(self):
+            pyrrtm.use_native(native)
+            try:
+                func(self)
+            finally:
+                pyrrtm.use_native(False)
+
+        if native:
+            decorator = unittest.skipIf(
+                not pyrrtm.has_native,
+                'pyrrtm not compiled with native library.')
+            wrapped = decorator(wrapped)
+            wrapped.__name__ = func.__name__ + '_native'
+        else:
+            wrapped.__name__ = func.__name__ + '_netcdf'
+
+        setattr(cls, wrapped.__name__, wrapped)
+
+    for name, func in list(cls.__dict__.items()):
+        if hasattr(func, 'native'):
+            add_test(func, True)
+        if hasattr(func, 'netcdf'):
+            add_test(func, False)
+        if hasattr(func, 'native') or hasattr(func, 'netcdf'):
+            delattr(cls, name)
+
+    return cls
+
+
+def test_native_and_netcdf(test_func):
+    test_func.native = True
+    test_func.netcdf = True
+    return test_func
+
+
+def test_netcdf(test_func):
+    test_func.netcdf = True
+    return test_func
+
+
+@rrtm_test_case
+class TestLW(BaseTest):
 
     def setup_lw_run(self, auto_pz=False, auto_pavel=False):
         lw = pyrrtm.LW(len(self.tavel))
@@ -55,35 +106,28 @@ class TestLW(BaseTest, unittest.TestCase):
         nc.close()
         return numpy.allclose(output.htr, correct_htr)
 
-    def test_netcdf(self):
-        pyrrtm.use_native(False)
+    @test_native_and_netcdf
+    def test_basic(self):
         lw = self.setup_lw_run()
         output = lw.run()
         assert self.check_result('lw', output)
 
-    @unittest.skipIf(not pyrrtm.has_native,
-                     'pyrrtm not compiled with native library.')
-    def test_native(self):
-        pyrrtm.use_native(True)
-        lw = self.setup_lw_run()
-        output = lw.run()
-        assert self.check_result('lw', output)
-
+    @test_native_and_netcdf
     def test_disort(self):
-        pyrrtm.use_native(False)
         lw = self.setup_lw_run()
         lw.iscat = 1
         output = lw.run()
         assert self.check_result('lw_disort', output)
 
+    @test_native_and_netcdf
     def test_auto_pz(self):
-        pyrrtm.use_native(False)
         lw = self.setup_lw_run(auto_pz=True)
         output = lw.run()
         assert self.check_result('lw_auto_pz', output)
 
 
-class TestSW(BaseTest, unittest.TestCase):
+@rrtm_test_case
+class TestSW(BaseTest):
 
     def setup_sw_run(self, auto_pz=False, auto_pavel=False):
         sw = pyrrtm.SW(len(self.tavel))
@@ -102,19 +146,27 @@ class TestSW(BaseTest, unittest.TestCase):
         nc.close()
         return numpy.allclose(output.htr, correct_htr)
 
-    def test_netcdf(self):
-        pyrrtm.use_native(False)
+    @test_native_and_netcdf
+    def test_basic(self):
         sw = self.setup_sw_run()
         output = sw.run()
         assert self.check_result('sw', output)
 
-    @unittest.skipIf(not pyrrtm.has_native,
-                     'pyrrtm not compiled with native library.')
-    def test_native(self):
-        pyrrtm.use_native(True)
+    # Although the test works in native mode, it causes nasty
+    # errors to stdout so skip for now.
+    @test_netcdf
+    def test_failure(self):
         sw = self.setup_sw_run()
+        # This setting causes RRTM to fail. We check it is handled.
+        tavel = sw.tavel
+        sw.tavel = numpy.ones(tavel.shape)
+        with self.assertRaises(pyrrtm.RRTMError):
+            sw.run()
+        # check rrtm still functions after the error is raised.
+        sw.tavel = tavel
         output = sw.run()
         assert self.check_result('sw', output)
+
 
 if __name__ == '__main__':
     unittest.main()
